@@ -1,0 +1,510 @@
+{
+  "id": "492fc8281052434a8b3b5a24b92c3762",
+  "version": "v0.12.0-755-g6920a1cf",
+  "branch": "main",
+  "cpu_info": "4 core ?",
+  "platform": {
+    "machine": "aarch64",
+    "os_release": {
+      "PRETTY_NAME": "Armbian 25.11.2 bookworm",
+      "NAME": "Debian GNU/Linux",
+      "VERSION_ID": "12",
+      "VERSION": "12 (bookworm)",
+      "VERSION_CODENAME": "bookworm",
+      "ID": "debian",
+      "HOME_URL": "https://www.armbian.com",
+      "SUPPORT_URL": "https://forum.armbian.com",
+      "BUG_REPORT_URL": "https://www.armbian.com/bugs",
+      "ARMBIAN_PRETTY_NAME": "Armbian 25.11.2 bookworm"
+    },
+    "version": "#4 SMP Tue Dec 17 17:53:46 CST 2024",
+    "python": "3.11.2 (main, Apr 28 2025, 14:11:48) [GCC 12.2.0]"
+  },
+  "config": {
+    "virtual_sdcard": [
+      "path",
+      "on_error_gcode"
+    ],
+    "pause_resume": [],
+    "display_status": [],
+    "respond": [],
+    "gcode_macro CANCEL_PRINT": [
+      "description",
+      "rename_existing",
+      "gcode"
+    ],
+    "gcode_macro PAUSE": [
+      "description",
+      "rename_existing",
+      "gcode"
+    ],
+    "gcode_macro RESUME": [
+      "description",
+      "rename_existing",
+      "variable_last_extruder_temp",
+      "variable_restore_idle_timeout",
+      "variable_idle_state",
+      "gcode"
+    ],
+    "gcode_macro SET_PAUSE_NEXT_LAYER": [
+      "description",
+      "gcode"
+    ],
+    "gcode_macro SET_PAUSE_AT_LAYER": [
+      "description",
+      "gcode"
+    ],
+    "gcode_macro SET_PRINT_STATS_INFO": [
+      "rename_existing",
+      "description",
+      "variable_pause_next_layer",
+      "variable_pause_at_layer",
+      "gcode"
+    ],
+    "gcode_macro _TOOLHEAD_PARK_PAUSE_CANCEL": [
+      "description",
+      "gcode"
+    ],
+    "gcode_macro _CLIENT_EXTRUDE": [
+      "description",
+      "gcode"
+    ],
+    "gcode_macro _CLIENT_RETRACT": [
+      "description",
+      "gcode"
+    ],
+    "gcode_macro _CLIENT_LINEAR_MOVE": [
+      "description",
+      "gcode"
+    ],
+    "stepper_x": [
+      "step_pin",
+      "dir_pin",
+      "enable_pin",
+      "microsteps",
+      "rotation_distance",
+      "full_steps_per_rotation",
+      "endstop_pin",
+      "position_min",
+      "position_endstop",
+      "position_max",
+      "homing_speed",
+      "homing_retract_dist",
+      "homing_positive_dir"
+    ],
+    "tmc2209 stepper_x": [
+      "uart_pin",
+      "interpolate",
+      "run_current",
+      "sense_resistor",
+      "stealthchop_threshold"
+    ],
+    "stepper_y": [
+      "step_pin",
+      "dir_pin",
+      "enable_pin",
+      "microsteps",
+      "rotation_distance",
+      "full_steps_per_rotation",
+      "endstop_pin",
+      "position_min",
+      "position_endstop",
+      "position_max",
+      "homing_speed",
+      "homing_retract_dist",
+      "homing_positive_dir"
+    ],
+    "tmc2209 stepper_y": [
+      "uart_pin",
+      "interpolate",
+      "run_current",
+      "sense_resistor",
+      "stealthchop_threshold"
+    ],
+    "stepper_z": [
+      "step_pin",
+      "dir_pin",
+      "enable_pin",
+      "rotation_distance",
+      "gear_ratio",
+      "microsteps",
+      "endstop_pin",
+      "position_max",
+      "position_min",
+      "homing_speed",
+      "second_homing_speed",
+      "homing_retract_dist"
+    ],
+    "tmc2209 stepper_z": [
+      "uart_pin",
+      "interpolate",
+      "run_current",
+      "sense_resistor",
+      "stealthchop_threshold"
+    ],
+    "stepper_z1": [
+      "step_pin",
+      "dir_pin",
+      "enable_pin",
+      "rotation_distance",
+      "gear_ratio",
+      "microsteps"
+    ],
+    "tmc2209 stepper_z1": [
+      "uart_pin",
+      "interpolate",
+      "run_current",
+      "sense_resistor",
+      "stealthchop_threshold"
+    ],
+    "stepper_z2": [
+      "step_pin",
+      "dir_pin",
+      "enable_pin",
+      "rotation_distance",
+      "gear_ratio",
+      "microsteps"
+    ],
+    "tmc2209 stepper_z2": [
+      "uart_pin",
+      "interpolate",
+      "run_current",
+      "sense_resistor",
+      "stealthchop_threshold"
+    ],
+    "stepper_z3": [
+      "step_pin",
+      "dir_pin",
+      "enable_pin",
+      "rotation_distance",
+      "gear_ratio",
+      "microsteps"
+    ],
+    "tmc2209 stepper_z3": [
+      "uart_pin",
+      "interpolate",
+      "run_current",
+      "sense_resistor",
+      "stealthchop_threshold"
+    ],
+    "heater_bed": [
+      "heater_pin",
+      "sensor_pin",
+      "sensor_type",
+      "max_power",
+      "min_temp",
+      "max_temp",
+      "control",
+      "pid_kp",
+      "pid_ki",
+      "pid_kd"
+    ],
+    "temperature_sensor chamber": [
+      "sensor_type",
+      "sensor_pin",
+      "min_temp",
+      "max_temp",
+      "gcode_id"
+    ],
+    "temperature_fan electronic_bay_fan_1": [
+      "pin",
+      "max_power",
+      "shutdown_speed",
+      "cycle_time",
+      "hardware_pwm",
+      "sensor_type",
+      "min_temp",
+      "max_temp",
+      "target_temp",
+      "control",
+      "pid_kp",
+      "pid_ki",
+      "pid_kd",
+      "min_speed",
+      "max_speed",
+      "tachometer_pin",
+      "tachometer_poll_interval"
+    ],
+    "controller_fan electronic_bay_fan_2": [
+      "pin",
+      "max_power",
+      "kick_start_time",
+      "fan_speed",
+      "idle_timeout",
+      "stepper",
+      "heater",
+      "cycle_time",
+      "hardware_pwm",
+      "tachometer_pin",
+      "tachometer_poll_interval"
+    ],
+    "heater_fan bedfan": [
+      "pin",
+      "kick_start_time",
+      "heater",
+      "heater_temp"
+    ],
+    "output_pin caselight": [
+      "pin",
+      "pwm",
+      "shutdown_value",
+      "cycle_time"
+    ],
+    "adxl345": [
+      "cs_pin",
+      "spi_software_sclk_pin",
+      "spi_software_mosi_pin",
+      "spi_software_miso_pin",
+      "axes_map"
+    ],
+    "resonance_tester": [
+      "probe_points",
+      "accel_chip"
+    ],
+    "extruder": [
+      "step_pin",
+      "dir_pin",
+      "enable_pin",
+      "microsteps",
+      "rotation_distance",
+      "gear_ratio",
+      "nozzle_diameter",
+      "filament_diameter",
+      "heater_pin",
+      "sensor_type",
+      "sensor_pin",
+      "spi_software_sclk_pin",
+      "spi_software_mosi_pin",
+      "spi_software_miso_pin",
+      "rtd_nominal_r",
+      "rtd_reference_r",
+      "rtd_num_of_wires",
+      "control",
+      "pid_kp",
+      "pid_ki",
+      "pid_kd",
+      "min_temp",
+      "max_temp"
+    ],
+    "tmc2209 extruder": [
+      "uart_pin",
+      "sense_resistor",
+      "run_current",
+      "stealthchop_threshold"
+    ],
+    "fan": [
+      "pin",
+      "kick_start_time"
+    ],
+    "heater_fan hotend_fan": [
+      "pin",
+      "heater",
+      "heater_temp"
+    ],
+    "probe": [
+      "pin",
+      "x_offset",
+      "y_offset",
+      "z_offset",
+      "speed",
+      "samples",
+      "samples_result",
+      "sample_retract_dist",
+      "samples_tolerance",
+      "samples_tolerance_retries",
+      "activate_gcode"
+    ],
+    "neopixel toolhead_light": [
+      "pin",
+      "chain_count",
+      "color_order"
+    ],
+    "gcode_macro BED_MESH_CALIBRATE": [
+      "rename_existing",
+      "variable_buffer",
+      "gcode"
+    ],
+    "mcu": [
+      "canbus_uuid"
+    ],
+    "mcu EBBCan": [
+      "canbus_uuid"
+    ],
+    "printer": [
+      "kinematics",
+      "max_velocity",
+      "max_accel",
+      "max_z_velocity",
+      "max_z_accel",
+      "square_corner_velocity"
+    ],
+    "idle_timeout": [
+      "timeout"
+    ],
+    "exclude_object": [],
+    "gcode_arcs": [
+      "resolution"
+    ],
+    "safe_z_home": [
+      "home_xy_position",
+      "speed",
+      "z_hop"
+    ],
+    "quad_gantry_level": [
+      "gantry_corners",
+      "points",
+      "speed",
+      "horizontal_move_z",
+      "retries",
+      "retry_tolerance",
+      "max_adjust"
+    ],
+    "bed_mesh": [
+      "speed",
+      "horizontal_move_z",
+      "mesh_min",
+      "mesh_max",
+      "probe_count",
+      "algorithm",
+      "fade_start",
+      "fade_end",
+      "fade_target"
+    ],
+    "gcode_shell_command cpufreq_set": [
+      "command",
+      "timeout",
+      "verbose"
+    ],
+    "gcode_macro _cpufreq_set": [
+      "description",
+      "gcode"
+    ],
+    "gcode_macro MAINTENANCE": [
+      "description",
+      "gcode"
+    ],
+    "gcode_macro G32": [
+      "gcode"
+    ],
+    "gcode_macro PRINT_START": [
+      "gcode"
+    ],
+    "gcode_macro PRINT_END": [
+      "gcode"
+    ],
+    "gcode_shell_command hello_world": [
+      "command",
+      "timeout",
+      "verbose"
+    ],
+    "gcode_macro HELLO_WORLD": [
+      "gcode"
+    ]
+  },
+  "objects": [
+    "gcode",
+    "gcode_io",
+    "webhooks",
+    "configfile",
+    "danger_options",
+    "pins",
+    "canbus_ids",
+    "canbus_stats mcu",
+    "mcu",
+    "canbus_stats EBBCan",
+    "mcu EBBCan",
+    "gcode_move",
+    "print_stats",
+    "gcode_macro",
+    "virtual_sdcard",
+    "pause_resume",
+    "display_status",
+    "respond",
+    "gcode_macro CANCEL_PRINT",
+    "gcode_macro PAUSE",
+    "gcode_macro RESUME",
+    "gcode_macro SET_PAUSE_NEXT_LAYER",
+    "gcode_macro SET_PAUSE_AT_LAYER",
+    "gcode_macro SET_PRINT_STATS_INFO",
+    "gcode_macro _TOOLHEAD_PARK_PAUSE_CANCEL",
+    "gcode_macro _CLIENT_EXTRUDE",
+    "gcode_macro _CLIENT_RETRACT",
+    "gcode_macro _CLIENT_LINEAR_MOVE",
+    "tmc_uart",
+    "stepper_enable",
+    "tmc2209 stepper_x",
+    "tmc2209 stepper_y",
+    "tmc2209 stepper_z",
+    "tmc2209 stepper_z1",
+    "tmc2209 stepper_z2",
+    "tmc2209 stepper_z3",
+    "heaters",
+    "adc_temperature",
+    "bme280",
+    "ds18b20",
+    "htu21d",
+    "sht3x",
+    "aht10",
+    "lm75",
+    "spi_temperature",
+    "temperature_host",
+    "temperature_mcu",
+    "temperature_combined",
+    "mpc_ambient_temperature",
+    "mpc_block_temperature",
+    "thermistor ATC Semitec 104GT-2",
+    "thermistor ATC Semitec 104NT-4-R025H42G",
+    "thermistor EPCOS 100K B57560G104F",
+    "thermistor Generic 3950",
+    "thermistor SliceEngineering 450",
+    "thermistor TDK NTCG104LH104JT1",
+    "thermistor Honeywell 100K 135-104LAG-J01",
+    "thermistor NTC 100K MGB18-104F39050L32",
+    "query_adc",
+    "verify_heater heater_bed",
+    "pid_calibrate",
+    "heater_bed",
+    "temperature_sensor chamber",
+    "temperature_fan electronic_bay_fan_1",
+    "controller_fan electronic_bay_fan_2",
+    "heater_fan bedfan",
+    "output_pin caselight",
+    "adxl345",
+    "resonance_tester",
+    "tmc2209 extruder",
+    "fan",
+    "heater_fan hotend_fan",
+    "probe",
+    "display_template",
+    "led",
+    "neopixel toolhead_light",
+    "gcode_macro BED_MESH_CALIBRATE",
+    "idle_timeout",
+    "exclude_object",
+    "gcode_arcs",
+    "homing",
+    "safe_z_home",
+    "quad_gantry_level",
+    "bed_mesh",
+    "gcode_shell_command cpufreq_set",
+    "gcode_macro _cpufreq_set",
+    "gcode_macro MAINTENANCE",
+    "gcode_macro G32",
+    "gcode_macro PRINT_START",
+    "gcode_macro PRINT_END",
+    "gcode_shell_command hello_world",
+    "gcode_macro HELLO_WORLD",
+    "force_move",
+    "telemetry",
+    "motion_report",
+    "query_endstops",
+    "system_stats",
+    "statistics",
+    "manual_probe",
+    "tuning_tower",
+    "garbage_collection",
+    "toolhead",
+    "verify_heater extruder",
+    "extruder"
+  ]
+}
