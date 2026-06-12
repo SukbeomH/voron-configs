@@ -39,8 +39,8 @@ EBBusb:      /dev/serial/by-id/usb-Klipper_stm32g0b1xx_500031000650505539323520-
 7. `CQGL`로 QGL이 안 된 경우에만 `QUAD_GANTRY_LEVEL`을 실행한다.
 8. `CARTOGRAPHER_TOUCH_HOME`으로 QGL 이후 Cartographer Z 기준을 재확인한다.
 9. `BED_MESH_CALIBRATE ADAPTIVE=1`로 Cartographer mesh를 생성한다.
-10. `PA_SAFE_Z` 높이에서 `PA_CALIBRATE`의 첫 고정 좌표(`PA_PARK_X`, `PA_PARK_Y`)로 이동한다.
-11. `PA_CALIBRATE`로 BD Pressure PA 자동 보정을 실행한다. 현재 매크로는 Z를 내리지 않고 고정 XY 경로에서 공중 압출하며 압력 응답을 측정한다.
+10. `PA_SAFE_Z` 높이에서 `PA_CALIBRATE`의 첫 좌표(`PA_PARK_X`, `PA_PARK_Y`)로 이동한다. 기본값은 `PA_X0`, `PA_Y_START`와 같다.
+11. `PA_CALIBRATE`로 BD Pressure PA 자동 보정을 실행한다. 현재 매크로는 Z를 내리지 않고 파라미터화된 XY 경로에서 공중 압출하며 압력 응답을 측정한다.
 12. PA 공중 압출 후 `CLEAN_NOZZLE`을 다시 실행해 BD nozzle probe 전 노즐 끝 상태를 정리한다.
 13. `SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE`로 BD Width를 활성화한다.
 14. `SET_Z_FROM_PROBE`로 BD Pressure nozzle probe를 사용해 최종 Z 기준을 동기화한다.
@@ -53,7 +53,7 @@ EBBusb:      /dev/serial/by-id/usb-Klipper_stm32g0b1xx_500031000650505539323520-
 2. `G28 Z`와 `CQGL`은 Cartographer 기준이어야 한다. BD Pressure가 Z homing 전체를 맡으면 "BD는 최종 Z만 담당"이라는 운용 목표와 다르다.
 3. `PROBE`는 BD Pressure `[probe]`를 의미한다. Cartographer probe 동작은 `CARTOGRAPHER_SCAN_PROBE`, `CARTOGRAPHER_TOUCH_PROBE`, `CARTOGRAPHER_TOUCH_HOME`처럼 prefix가 붙은 명령을 사용한다.
 4. BD Width include를 켜면 `SET_BDWIDTH`가 반드시 G-code help에 보여야 한다.
-5. `PA_CALIBRATE` 내부 좌표는 현재 `X78..158`, `Y38.75..210.25`로 고정되어 있다. `PRINT_START`의 `PA_PARK_X/Y`는 첫 압출 이동을 안정화하기 위한 사전 위치일 뿐, 전체 PA 경로를 브러시 우측으로 옮기지는 않는다.
+5. `PA_CALIBRATE` 내부 좌표는 `PA_X0/PA_X1/PA_X2/PA_X3`, `PA_Y_START`, `PA_Y_STEP`, `PA_LINES`로 조정할 수 있다. 기본값은 기존 경로 `X78/98/138/158`, `Y38.75`, `Y_STEP=3.5`, `PA_LINES=50`이다.
 6. by-path serial은 USB 포트를 바꾸면 달라진다. 포트를 변경한 경우 `/dev/serial/by-path`를 다시 확인해야 한다.
 
 ## 5. 기본 검증 명령
@@ -77,3 +77,12 @@ curl -s "http://127.0.0.1:7125/printer/objects/query?probe&cartographer&bdpressu
 2. `extruder_exit_filament` uses `^!EBBusb:PB5` and represents the extruder/toolhead path exit sensor.
 3. `ASSERT_TOOLHEAD_FILAMENT` requires both sensors to detect filament before `PRINT_START` continues.
 4. `pause_on_runout` is kept disabled until both sensors are physically verified.
+
+## 7. PA path parameters
+
+1. `PA_X0` is the travel/return X coordinate and first extrusion X coordinate.
+2. `PA_X1`, `PA_X2`, and `PA_X3` are the low-speed, high-speed, and final low-speed extrusion X coordinates.
+3. `PA_Y_START` is the first PA line Y coordinate.
+4. `PA_Y_STEP` is the Y spacing between PA iterations.
+5. `PA_LINES` is the number of PA sweep iterations after the initial stabilization line.
+6. `PA_SAFE_Z` controls the air-extrusion height in `PRINT_START`; it should stay safely above the bed.
