@@ -42,16 +42,15 @@ EBBusb:      /dev/serial/by-id/usb-Klipper_stm32g0b1xx_500031000650505539323520-
 9. `BED_MESH_CALIBRATE ADAPTIVE=1`로 Cartographer mesh를 생성한다.
 10. mesh 직후 `CLEAN_NOZZLE`로 잔여물을 제거한다. 이전 출력 잔여물이 BD nozzle probe에 끼지 않게 하기 위한 단계다.
 11. `SET_Z_FROM_PROBE`로 BD Pressure nozzle probe를 사용해 최종 Z 기준을 동기화한다.
-12. upstream `klipper/README.md` 방식대로 `PA_SAFE_Z=30` 높이의 `PA_PARK_X=240`, `PA_PARK_Y=240` poop position으로 이동한다.
-13. `PA_CALIBRATE`로 BD Pressure PA 자동 보정을 실행한다. `PA_E` 내부 좌표는 upstream 기본값을 유지하고, 사전 위치 이동으로 공중 압출 높이만 보장한다.
-14. PA 공중 압출 후 `CLEAN_NOZZLE`을 다시 실행해 purge 전 노즐 끝 상태를 정리한다.
-15. `SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE`로 BD Width를 활성화한다.
-16. 출력 온도를 최종 확인한다.
-17. purge line을 출력하고 print를 시작한다.
+12. 기본값은 BD Pressure PA 자동 보정을 건너뛴다. `PRINT_START RUN_PA=1`일 때만 upstream 방식대로 `PA_SAFE_Z=30`, `PA_PARK_X=240`, `PA_PARK_Y=240` poop position으로 이동한 뒤 `PA_CALIBRATE`를 실행한다.
+13. `RUN_PA=1`이면 PA 공중 압출 후 `CLEAN_NOZZLE`을 다시 실행해 purge 전 노즐 끝 상태를 정리한다.
+14. `SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE`로 BD Width를 활성화한다.
+15. 출력 온도를 최종 확인한다.
+16. purge line을 출력하고 print를 시작한다.
 
 ## 4. 주의할 점
 
-1. `SET_Z_FROM_PROBE`는 `BED_MESH_CALIBRATE ADAPTIVE=1` 직후 `CLEAN_NOZZLE` 다음에 둔다. PA는 공중 압출이며 Z 기준을 재정의하지 않으므로, PA 이후에는 purge 전 노즐 청소만 다시 수행한다.
+1. `SET_Z_FROM_PROBE`는 `BED_MESH_CALIBRATE ADAPTIVE=1` 직후 `CLEAN_NOZZLE` 다음에 둔다. PA는 기본 스킵이며 `RUN_PA=1`일 때만 공중 압출을 수행한다. PA는 Z 기준을 재정의하지 않으므로, PA 이후에는 purge 전 노즐 청소만 다시 수행한다.
 2. `G28 Z`는 `cartographer_probe:z_virtual_endstop` 기준이다. 단, `CQGL`은 stock `QUAD_GANTRY_LEVEL`을 호출하므로 현재 split-probe 구조에서는 표준 `[probe]`인 BD Pressure를 사용한다. QGL front points는 `stepper_y position_min: 1` 안쪽인 `Y5`에 둔다. QGL까지 Cartographer로 강제하려면 별도 architecture 변경이 필요하다.
 3. `PROBE`는 BD Pressure `[probe]`를 의미한다. Cartographer probe 동작은 `CARTOGRAPHER_SCAN_PROBE`, `CARTOGRAPHER_TOUCH_PROBE`, `CARTOGRAPHER_TOUCH_HOME`처럼 prefix가 붙은 명령을 사용한다.
 4. BD Pressure `[probe]` sampling은 QGL 재시도 과다를 막기 위해 upstream-tolerant 값(`samples: 2`, `sample_retract_dist: 3`, `samples_tolerance: 0.03`, double `PA_RESET`)을 유지한다.

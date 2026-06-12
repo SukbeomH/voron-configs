@@ -147,8 +147,8 @@ Current intended order:
 9. `BED_MESH_CALIBRATE ADAPTIVE=1` using Cartographer mesh scan.
 10. `CLEAN_NOZZLE` immediately after mesh to remove residue before BD final Z.
 11. `SET_Z_FROM_PROBE` using BD Pressure final nozzle probe.
-12. Park at upstream-style `Z30`, `X240 Y240` and run `PA_CALIBRATE`.
-13. Clean nozzle again after PA air extrusion.
+12. Skip BD Pressure PA calibration by default; only `PRINT_START RUN_PA=1` parks at upstream-style `Z30`, `X240 Y240` and runs `PA_CALIBRATE`.
+13. If `RUN_PA=1`, clean nozzle again after PA air extrusion.
 14. `SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE`.
 15. Confirm final nozzle temperature and run purge line.
 ```
@@ -168,9 +168,11 @@ PandaPi/BD Pressure docs show moving to high Z and a poop position, then calling
 The poop position is a pre-PA park position, not a rewrite of PA_E internal XY geometry.
 ```
 
-Current `PRINT_START` PA defaults:
+Current `PRINT_START` PA policy:
 
 ```text
+RUN_PA=0 by default; PRINT_START does not run PA_CALIBRATE on every print.
+RUN_PA=1 opts into BD Pressure PA calibration before purge.
 PA_SAFE_Z=30
 PA_PARK_X=240
 PA_PARK_Y=240
