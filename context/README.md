@@ -105,31 +105,33 @@ Core files:
 
 ```text
 printer.cfg                    main MCU serial and include order
-printer_bd_pressure_usb.cfg     BD Pressure USB module, stock `[probe]`, PA_CALIBRATE, PA_E
+printer_bd_pressure_usb.cfg     BD Pressure USB module, PA_CALIBRATE, PA_E, PA_RESET
 printer_cartographer.cfg        Cartographer MCU and scanner/touch config
-printer_mainboard.cfg           XY/Z steppers; Z endstop uses `cartographer_probe:z_virtual_endstop`
+printer_mainboard.cfg           XY/Z steppers; Z endstop uses `probe:z_virtual_endstop`
 printer_bdwidth.cfg             BD Width USB module
 printer_filament_sensors.cfg    EBBusb PB6/PB5 filament switch sensors and status/assert macros
-macros.cfg                      PRINT_START, PRINT_END, SET_Z_FROM_PROBE, CLEAN_NOZZLE, CQGL
+macros.cfg                      PRINT_START, PRINT_END, deprecated SET_Z_FROM_PROBE, CLEAN_NOZZLE, CQGL
 ```
 
 ## 5. Probe Ownership Truth Table
 
 ```text
-Standard Klipper `[probe]`: BD Pressure
+Standard Klipper `[probe]`: Cartographer
 Cartographer scanner/touch object: `cartographer`
-Cartographer endstop chip: `cartographer_probe`
-G28 Z / safe_z_home: Cartographer via `cartographer_probe:z_virtual_endstop`
-BED_MESH_CALIBRATE ADAPTIVE=1: Cartographer scan path in current PRINT_START
-SET_Z_FROM_PROBE: custom macro that uses BD Pressure `PROBE` then `SET_KINEMATIC_POSITION`
-QUAD_GANTRY_LEVEL / CQGL: stock Klipper QGL consumes standard `[probe]`, so it is BD Pressure-backed in this architecture
+Cartographer endstop chip: `probe`
+G28 Z / safe_z_home: Cartographer via `probe:z_virtual_endstop`
+BED_MESH_CALIBRATE ADAPTIVE=1: Cartographer scan mesh
+Final Z in PRINT_START: `CARTOGRAPHER_TOUCH_HOME`
+QUAD_GANTRY_LEVEL / CQGL: Cartographer-backed stock probe
+BD Pressure: PA_CALIBRATE / PA_E / PA_RESET only
+SET_Z_FROM_PROBE: deprecated, not used by PRINT_START
 ```
 
-BD Pressure probe sampling intentionally follows the upstream-tolerant policy for QGL use: `samples: 2`, `sample_retract_dist: 3`, `samples_tolerance: 0.03`, and double `PA_RESET` in `activate_gcode`. Do not tighten this without fresh `PROBE_ACCURACY` evidence.
+Do not restore a BD Pressure `[probe]` block unless intentionally returning to split-probe architecture. If BD Pressure owns stock `[probe]`, `PROBE` and QGL use BD Pressure again.
 
-`register_as_probe: false` in `printer_cartographer.cfg` is intentional. It prevents Cartographer from owning the stock `probe` object while still allowing `cartographer_probe:z_virtual_endstop` for Z homing.
+`register_as_probe: true` in `printer_cartographer.cfg` is intentional. It makes Cartographer own the stock `probe` object and the `probe:z_virtual_endstop` chip used by Z homing and QGL.
 
-If the hard requirement becomes "BD Pressure must never be used for QGL", this cannot be fixed by PRINT_START ordering alone. It requires an architecture change, such as making Cartographer the stock `[probe]` again or adding a named BD Pressure probe path separate from stock `[probe]`.
+The previous GitHub Cartographer-probe configuration used unsafe front QGL Y points. Keep front QGL points at `Y45` for the current Cartographer `y_offset: 43` setup.
 
 ## 6. PRINT_START Flow
 
@@ -142,11 +144,11 @@ Current intended order:
 4. `G28` using Cartographer Z virtual endstop.
 5. Wait for bed target.
 6. Clean nozzle on rear brush at standby temperature.
-7. `CQGL`; note this currently uses BD Pressure because QGL consumes stock `[probe]`.
+7. `CQGL`; this uses Cartographer because Cartographer owns stock `[probe]`.
 8. `CARTOGRAPHER_TOUCH_HOME` after QGL.
 9. `BED_MESH_CALIBRATE ADAPTIVE=1` using Cartographer mesh scan.
-10. `CLEAN_NOZZLE` immediately after mesh to remove residue before BD final Z.
-11. `SET_Z_FROM_PROBE` using BD Pressure final nozzle probe.
+10. `CLEAN_NOZZLE` immediately after mesh to remove residue before final touch.
+11. `CARTOGRAPHER_TOUCH_HOME` for final Z after post-mesh cleaning.
 12. Skip BD Pressure PA calibration by default; only `PRINT_START RUN_PA=1` parks at upstream-style `Z30`, `X240 Y240` and runs `PA_CALIBRATE`.
 13. If `RUN_PA=1`, clean nozzle again after PA air extrusion.
 14. `SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE`.
@@ -198,7 +200,7 @@ Safe verification that does not heat or move:
 
 ```bash
 ssh sukbeom@192.168.0.29 'curl -s http://127.0.0.1:7125/printer/info'
-ssh sukbeom@192.168.0.29 'curl -s http://127.0.0.1:7125/printer/gcode/help | grep -E "PA_CALIBRATE|PA_E|PRINT_START|SET_Z_FROM_PROBE|CARTOGRAPHER_TOUCH_HOME|SET_BDWIDTH|FILAMENT_STATUS"'
+ssh sukbeom@192.168.0.29 'curl -s http://127.0.0.1:7125/printer/gcode/help | grep -E "PROBE|QUERY_PROBE|PROBE_ACCURACY|PA_CALIBRATE|PA_E|PRINT_START|SET_Z_FROM_PROBE|CARTOGRAPHER_TOUCH_HOME|SET_BDWIDTH|FILAMENT_STATUS"'
 ssh sukbeom@192.168.0.29 'curl -s "http://127.0.0.1:7125/printer/objects/query?probe&cartographer&bdpressure%20bd_pa&bdwidth%20fila_width_0&filament_switch_sensor%20extruder_entry_filament&filament_switch_sensor%20extruder_exit_filament"'
 ```
 
@@ -206,7 +208,7 @@ Expected high-level state after config-only edits:
 
 ```text
 /printer/info state: ready
-probe object exists and is BD Pressure-backed
+probe object exists and is Cartographer-backed
 cartographer object exists
 bdpressure bd_pa state: STOP
 bdwidth fila_width_0 object exists
