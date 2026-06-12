@@ -32,7 +32,7 @@ EBBusb:      /dev/serial/by-id/usb-Klipper_stm32g0b1xx_500031000650505539323520-
 ## 3. PRINT_START 순서
 
 1. `SET_GCODE_OFFSET Z=0`으로 이전 런타임 Z 오프셋을 초기화한다.
-2. 필라멘트 센서 상태를 확인한다.
+2. 필라멘트 센서는 기본 monitor-only로 상태를 출력한다. `PRINT_START REQUIRE_FILAMENT=1`일 때만 hard-abort한다.
 3. 베드 가열을 시작하고 노즐은 150도 대기 온도로 올린다.
 4. `G28`로 Cartographer 기반 homing을 수행한다.
 5. 베드 목표 온도에 도달할 때까지 대기한다.
@@ -77,5 +77,6 @@ curl -s "http://127.0.0.1:7125/printer/objects/query?probe&cartographer&bdpressu
 
 1. `extruder_entry_filament` uses `^!EBBusb:PB6` and represents the extruder path entry sensor.
 2. `extruder_exit_filament` uses `^!EBBusb:PB5` and represents the extruder/toolhead path exit sensor.
-3. `ASSERT_TOOLHEAD_FILAMENT` requires both sensors to detect filament before `PRINT_START` continues.
-4. `pause_on_runout` is kept disabled until both sensors are physically verified.
+3. `PRINT_START` defaults to monitor-only and calls `FILAMENT_STATUS` so unverified PB5/PB6 wiring does not block prints.
+4. `PRINT_START REQUIRE_FILAMENT=1` calls `ASSERT_TOOLHEAD_FILAMENT` and requires both sensors to detect filament.
+5. `pause_on_runout` is kept disabled until both sensors are physically verified.
