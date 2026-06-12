@@ -52,7 +52,7 @@ EBBusb:      /dev/serial/by-id/usb-Klipper_stm32g0b1xx_500031000650505539323520-
 ## 4. 주의할 점
 
 1. `SET_Z_FROM_PROBE`는 `BED_MESH_CALIBRATE ADAPTIVE=1` 직후 `CLEAN_NOZZLE` 다음에 둔다. PA는 공중 압출이며 Z 기준을 재정의하지 않으므로, PA 이후에는 purge 전 노즐 청소만 다시 수행한다.
-2. `G28 Z`는 `cartographer_probe:z_virtual_endstop` 기준이다. 단, `CQGL`은 stock `QUAD_GANTRY_LEVEL`을 호출하므로 현재 split-probe 구조에서는 표준 `[probe]`인 BD Pressure를 사용한다. QGL까지 Cartographer로 강제하려면 별도 architecture 변경이 필요하다.
+2. `G28 Z`는 `cartographer_probe:z_virtual_endstop` 기준이다. 단, `CQGL`은 stock `QUAD_GANTRY_LEVEL`을 호출하므로 현재 split-probe 구조에서는 표준 `[probe]`인 BD Pressure를 사용한다. QGL front points는 `stepper_y position_min: 1` 안쪽인 `Y5`에 둔다. QGL까지 Cartographer로 강제하려면 별도 architecture 변경이 필요하다.
 3. `PROBE`는 BD Pressure `[probe]`를 의미한다. Cartographer probe 동작은 `CARTOGRAPHER_SCAN_PROBE`, `CARTOGRAPHER_TOUCH_PROBE`, `CARTOGRAPHER_TOUCH_HOME`처럼 prefix가 붙은 명령을 사용한다.
 4. BD Width include를 켜면 `SET_BDWIDTH`가 반드시 G-code help에 보여야 한다.
 5. `PA_CALIBRATE`/`PA_E` 내부 좌표는 upstream `bd_pressure.cfg` 기본값을 유지한다. `PA_PARK_X/Y`는 upstream README의 사전 poop position 이동값이며, 내부 PA 경로를 재정의하지 않는다.
