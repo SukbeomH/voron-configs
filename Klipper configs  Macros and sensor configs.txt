@@ -1,3 +1,8 @@
+# OBSOLETE EXAMPLE ONLY - DO NOT INCLUDE DIRECTLY
+# Active filament sensor config is printer_filament_sensors.cfg.
+# Current hardware plan: EBBusb PB6 entry sensor and EBBusb PB5 exit sensor.
+# PRINT_START treats these sensors as monitor-only unless REQUIRE_FILAMENT=1 is passed.
+# This file contains older EBBCan PB3/PB4 examples and is kept only as historical reference.
 
 [extruder]
 rotation_distance: 4.7830131121165    # a good start but you id recommend to test again using this site to calculate  https://www.service-uplink.de/esteps_cal/calculator.php 
