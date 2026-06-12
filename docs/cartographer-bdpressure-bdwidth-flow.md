@@ -22,8 +22,9 @@
 현재 주요 경로:
 
 ```ini
-BD Pressure: /dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.4.1:1.0-port0
-BD Width:    /dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.4.3:1.0-port0
+BD Pressure: /dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.1:1.0-port0
+BD Width:    /dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.2:1.0-port0
+Main MCU:    /dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.4:1.0-port0
 Cartographer:/dev/serial/by-id/usb-Cartographer_614e_160011000A43565537353020-if00
 EBBusb:      /dev/serial/by-id/usb-Klipper_stm32g0b1xx_500031000650505539323520-if00
 ```
