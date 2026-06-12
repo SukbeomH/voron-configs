@@ -1,0 +1,523 @@
+#####################################################################
+#   Macros
+#####################################################################
+
+[gcode_macro SET_FAKE_Z]
+gcode:
+    {% set z_value = params.Z|default(printer.toolhead.position.z)|float %}
+    SET_KINEMATIC_POSITION Z={z_value}
+
+[gcode_macro _RELOAD_Z_OFFSET_FROM_PROBE]
+gcode:
+    {% set Z = printer.toolhead.position.z %}
+    {% set last_z = printer.probe.last_z_result %}
+    # 프로브 결과값으로 시스템 좌표를 동기화하여 수동 창 발생을 원천 차단합니다.
+    SET_KINEMATIC_POSITION Z={Z - last_z}
+    # 현재 오프셋을 변수 파일에 저장하여 다음 출력 시 참조합니다.
+    SAVE_VARIABLE VARIABLE=z_offset VALUE={last_z}
+
+[gcode_macro SET_Z_FROM_PROBE]
+gcode:
+    M118 Syncing Z-Offset from probe...
+    G90
+    G0 X125 Y125 Z5 F6000
+
+    G4 P500
+    PROBE
+
+    _RELOAD_Z_OFFSET_FROM_PROBE
+    G0 Z5 F3000
+    
+[gcode_macro Z_OFFSET_APPLY_PROBE]
+rename_existing: Z_OFFSET_APPLY_PROBE_ORIG
+gcode:
+    SAVE_VARIABLE VARIABLE=nvm_offset VALUE={ printer["gcode_macro SET_GCODE_OFFSET"].runtime_offset }
+
+[gcode_macro SET_GCODE_OFFSET]
+rename_existing: SET_GCODE_OFFSET_ORIG
+variable_restored: False  # Mark whether the var has been restored from NVM
+variable_runtime_offset: 0
+gcode:
+    {% if params.Z_ADJUST %}
+    SET_GCODE_VARIABLE MACRO=SET_GCODE_OFFSET VARIABLE=runtime_offset VALUE={ printer["gcode_macro SET_GCODE_OFFSET"].runtime_offset + params.Z_ADJUST|float }
+    {% endif %}
+    {% if params.Z %} 
+    {% set paramList = rawparams.split() %}
+    {% for i in range(paramList|length) %}
+      {% if paramList[i]=="Z=0" %}
+        {% set temp=paramList.pop(i) %}
+        {% set temp="Z_ADJUST=" + (-printer["gcode_macro SET_GCODE_OFFSET"].runtime_offset)|string %}
+        {% if paramList.append(temp) %}{% endif %}
+      {% endif %}
+    {% endfor %}
+    {% set rawparams=paramList|join(' ') %}
+    SET_GCODE_VARIABLE MACRO=SET_GCODE_OFFSET VARIABLE=runtime_offset VALUE=0
+    {% endif %}
+    SET_GCODE_OFFSET_ORIG { rawparams }
+
+[gcode_macro SETTLE_BELTS]
+description: 갠트리 장력 해소 매크로
+gcode:
+    {% set speed = params.SPEED|default(15000)|int %}
+    {% set iterations = params.ITER|default(5)|int %}
+    
+    SAVE_GCODE_STATE NAME=settle_belts_state
+    G28
+    G90
+    G1 Z20 F3000
+    
+    # 지정된 횟수만큼 원형 운동 반복
+    {% for i in range(iterations) %}
+        G1 X125 Y75 F{speed}     # 시작점
+        G2 X125 Y75 I0 J50 F{speed} # 시계 방향
+        G3 X125 Y75 I0 J50 F{speed} # 반시계 방향
+    {% endfor %}
+    
+    G1 X125 Y125 F{speed}        # 중앙으로 복귀
+    RESTORE_GCODE_STATE NAME=settle_belts_state
+    M117 Belts Settled
+
+[gcode_macro G32]
+description: 전체 호밍 및 조건부 레벨링
+gcode:
+    CG28                # 조건부 홈 (없으면 실행)
+    CQGL                # 조건부 QGL (안되어 있으면 실행)
+    # 250mm Build 기준 중앙 이동
+    G0 X125 Y125 Z30 F3600
+
+[gcode_macro CLEAN_NOZZLE]
+description: 후방 노즐 브러쉬에서 노즐 청소
+variable_brush_x_min: 32.0
+variable_brush_x_max: 52.0
+variable_brush_y: 252.5
+variable_brush_z: 1.5
+variable_travel_z: 10.0
+variable_wipe_count: 6
+variable_wipe_speed: 6000
+gcode:
+    {% set cfg = printer["gcode_macro CLEAN_NOZZLE"] %}
+    {% set x_min = params.X_MIN|default(cfg.brush_x_min)|float %}
+    {% set x_max = params.X_MAX|default(cfg.brush_x_max)|float %}
+    {% set y = params.Y|default(cfg.brush_y)|float %}
+    {% set z = params.Z|default(cfg.brush_z)|float %}
+    {% set travel_z = params.TRAVEL_Z|default(cfg.travel_z)|float %}
+    {% set wipes = params.WIPES|default(cfg.wipe_count)|int %}
+    {% set speed = params.SPEED|default(cfg.wipe_speed)|int %}
+
+    SAVE_GCODE_STATE NAME=clean_nozzle_state
+    G90
+    {% if "xyz" not in printer.toolhead.homed_axes %}
+        G28
+    {% endif %}
+    G0 Z{travel_z} F3000
+    G0 X{x_min} Y{y} F6000
+    G0 Z{z} F1200
+    {% for i in range(wipes) %}
+        G0 X{x_max} Y{y} F{speed}
+        G0 X{x_min} Y{y} F{speed}
+    {% endfor %}
+    G0 Z{travel_z} F3000
+    RESTORE_GCODE_STATE NAME=clean_nozzle_state
+
+[gcode_macro PRINT_START]
+description: PRINT_START 스마트 히팅 및 검증 파이프라인
+gcode:
+    # 1. 파라미터 수신 및 초기 변수 설정
+    {% set target_bed = params.BED|default(110)|int %}
+    {% set target_extruder = params.EXTRUDER|default(260)|int %}
+    {% set target_chamber = params.CHAMBER|default(40)|int %}
+    {% set pa_max_volumetric = params.PA_MAX_VOLUMETRIC|default(params.MAX_VOLUMETRIC|default(20))|float %}
+    {% set pa_acc_wall = params.PA_ACC_WALL|default(4000)|float %}
+    {% set pa_travel_speed = params.PA_TRAVEL_SPEED|default(400)|float %}
+    {% set pa_acc_to_decel_factor = params.PA_ACC_TO_DECEL_FACTOR|default(50)|float %}
+    {% set pa_scv = params.PA_SQUARE_CORNER_VELOCITY|default(9)|float %}
+    {% set pa_line_z = params.PA_LINE_Z|default(0.3)|float %}
+    {% set brush_z = params.BRUSH_Z|default(printer["gcode_macro CLEAN_NOZZLE"].brush_z)|float %}
+    {% set brush_wipes = params.BRUSH_WIPES|default(printer["gcode_macro CLEAN_NOZZLE"].wipe_count)|int %}
+
+    # [INIT] 파이프라인 시작 알림
+    M118 >>> [JOB_START] Initializing Klipper Deployment Pipeline...    
+    SET_GCODE_OFFSET Z=0
+    ASSERT_TOOLHEAD_FILAMENT
+    # -----------------------------------------------------------------
+    # STAGE 1: THERMAL_SOAK (베드 가열 및 노즐 보온)
+    # -----------------------------------------------------------------
+    M118 >>> [STAGE: PRE-HEAT] Target Bed: {target_bed}C, Standby Extruder: 150C
+    M117 Pre-heating...
+    M104 S150                      # 노즐은 150도까지만 가열 (Ooze/필라멘트 탄화 방지)
+    M140 S{target_bed}             # 베드 가열 시작 (비동기)
+    
+    G28                           # 홈이 안 되어 있다면 호밍
+    G90
+    G0 X125 Y125 Z30 F6000         # 히트소크를 위해 중앙으로 이동
+    
+    M190 S{target_bed}             # 베드 온도 도달까지 대기
+    M118 >>> [STATUS] Bed temperature reached. Thermal expansion stabilized.
+
+    # -----------------------------------------------------------------
+    # STAGE 2: NOZZLE_CLEAN (후방 브러쉬)
+    # -----------------------------------------------------------------
+    M118 >>> [STAGE: NOZZLE_CLEAN] Cleaning nozzle on rear brush...
+    M109 S150                      # 세척 및 Survey Touch 전 노즐 온도 안정화
+    CLEAN_NOZZLE Z={brush_z} WIPES={brush_wipes}
+    
+    # -----------------------------------------------------------------
+    # STAGE 3: VALIDATION (수평, 표면 스캔)
+    # -----------------------------------------------------------------
+    M118 >>> [STAGE: VALIDATION] Checking Gantry & Surface Mesh...
+    CQGL                           # 조건부 QGL 실행 (이미 되어 있으면 스킵)
+
+    CARTOGRAPHER_TOUCH_HOME        # QGL 이후 실제 Z0 재확인
+    
+    G90
+    G0 X125 Y125 Z10 F6000         # 베드 중앙으로 이동
+    
+    M117 Meshing with Cartographer...
+    BED_MESH_CALIBRATE ADAPTIVE=1  # Cartographer plugin handles scan mesh.
+    
+    # (참고) Z 기준은 현재 probe/scanner 구성에서 관리합니다.
+    M118 >>> [STATUS] Validation complete. Kinematics verified.
+
+    # -----------------------------------------------------------------
+    # STAGE 4: PA_CALIBRATION (BD Pressure)
+    # -----------------------------------------------------------------
+    M118 >>> [STAGE: PA_CAL] Running BD Pressure PA calibration...
+    PA_STATE
+    G90
+    G0 X15 Y20 Z{pa_line_z} F6000
+    PA_CALIBRATE NOZZLE_TEMP={target_extruder} MAX_VOLUMETRIC={pa_max_volumetric} ACC_WALL={pa_acc_wall} TRAVEL_SPEED={pa_travel_speed} ACC_TO_DECEL_FACTOR={pa_acc_to_decel_factor} SQUARE_CORNER_VELOCITY={pa_scv}
+    G90
+    G0 X15 Y20 Z10 F6000
+    M118 >>> [STATUS] PA calibration complete.
+    SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE
+
+    # -----------------------------------------------------------------
+    # STAGE 5: DEPLOY (최종 가열 및 프라이밍)
+    # -----------------------------------------------------------------
+    M118 >>> [STAGE: DEPLOY] Moving to Purge Area & Final Heating...
+    G0 X15 Y20 Z10 F6000           # 프라이밍 위치(베드 앞쪽)로 이동
+    
+    M117 Heating Extruder...
+    M109 S{target_extruder}        # 실제 출력 온도까지 가열 및 대기
+    
+    M118 >>> [STATUS] Execution: Purge Line starting...
+    M117 Purging...
+    
+    # 프라이밍 라인 출력 (기존 로직 그대로 활용)
+    G92 E0                         
+    G0 Z0.3 F3000                  
+    G1 Y150 E15 F1500              
+    G1 X15.4 F6000                 
+    G1 Y20 E30 F1500               
+    
+    G92 E0                         
+    G0 Z2.0 F3000                  
+    
+    # [FINISH] 파이프라인 완료
+    M118 >>> [SUCCESS] Deployment successful. Start Printing...
+    M117 Printing...
+
+
+[gcode_macro PRINT_END]
+gcode:
+    # 안전한 좌표 계산 (최대 높이 초과 방지)
+    {% set th = printer.toolhead %}
+    {% set x_safe = th.axis_maximum.x - 20 %}
+    {% set y_safe = th.axis_maximum.y - 20 %}
+    {% set z_safe = [th.position.z + 2, th.axis_maximum.z]|min %}
+    
+    SAVE_GCODE_STATE NAME=STATE_PRINT_END
+    
+    M400                           ; 버퍼 비우기
+    G92 E0                         ; 익스트루더 0점
+    G1 E-1.0 F3600                 ; 1.0mm (직결식 기준 안전값)
+    
+    TURN_OFF_HEATERS
+    SET_BDWIDTH NAME=fila_width_0 COMMAND=DISABLE
+    
+    G90                                      ; 절대 좌표
+    G0 Z{z_safe} F3600                       ; Z 살짝 상승
+    G0 X{x_safe} Y{y_safe} F3600             ; 뒤쪽 구석으로 파킹 (보통 Max 좌표 쪽)
+    M107                                     ; 팬 끄기
+    
+    BED_MESH_CLEAR
+    RESTORE_GCODE_STATE NAME=STATE_PRINT_END
+
+#####################################################################
+#  Conditional Macros (조건부 실행)
+#####################################################################
+
+[gcode_macro CG28]
+description: 홈이 안 되어 있을 때만 G28 실행 (Conditional Homing)
+gcode:
+    {% if "xyz" not in printer.toolhead.homed_axes %}
+        M117 Conditional Homing...
+        G28
+    {% endif %}
+
+[gcode_macro CQGL]
+description: QGL이 적용 안 되어 있을 때만 실행 (Conditional QGL)
+gcode:
+    {% if printer.quad_gantry_level.applied == False %}
+        M117 Conditional QGL...
+        G90
+        # QGL을 하려면 먼저 홈이 되어 있어야 하므로 체크
+        CG28
+        
+        QUAD_GANTRY_LEVEL
+        G28 Z
+    {% endif %}
+
+[gcode_shell_command backup_cfg]
+command: sh /home/sukbeom/printer_data/config/autocommit.sh
+timeout: 90.
+verbose: True
+
+[gcode_macro BACKUP_CFG]
+description: GitHub로 설정 파일 백업
+gcode:
+    RUN_SHELL_COMMAND CMD=backup_cfg
+    {action_respond_info("GitHub Backup Complete!")}
+
+[gcode_shell_command reset_webcam_service]
+command: sh /home/sukbeom/printer_data/config/scripts/reset_crowsnest.sh
+timeout: 15.
+verbose: True
+
+[gcode_macro RESET_WEBCAM]
+description: crowsnest failed 상태 초기화 후 웹캠 서비스 재시작
+gcode:
+    RESPOND TYPE=echo MSG="Resetting crowsnest failed state and restarting webcam service..."
+    RUN_SHELL_COMMAND CMD=reset_webcam_service
+    RESPOND TYPE=echo MSG="crowsnest reset/restart command sent."
+	    
+[gcode_macro M109]
+rename_existing: M99109
+description: M109 명령어를 덮어씌워 TEMPERATURE_WAIT를 사용 (빠른 통과)
+gcode:
+    # 파라미터 받기 (S는 대기 후 설정, T는 툴 번호)
+    {% set s = params.S|float %}
+    
+    # 목표 온도로 설정 먼저 함 (비동기)
+    M104 {% for p in params %}{'%s%s' % (p, params[p])}{% endfor %}  
+    
+    # 만약 현재 온도가 목표보다 낮다면 -> 목표값에 도달할 때까지 대기
+    # (허용 오차 1도: 목표가 240도면 239도만 넘어도 출발)
+    {% if s != 0 %}
+        TEMPERATURE_WAIT SENSOR=extruder MINIMUM={s} MAXIMUM={s+2}
+    {% endif %}
+
+[gcode_macro M190]
+rename_existing: M99190
+description: M190 명령어를 덮어씌워 TEMPERATURE_WAIT를 사용 (빠른 통과)
+gcode:
+    {% set s = params.S|float %}
+
+    # 목표 온도로 설정 (비동기)
+    M140 {% for p in params %}{'%s%s' % (p, params[p])}{% endfor %}
+    
+    # 만약 목표 온도가 0이 아니라면 대기
+    # (허용 오차 1도)
+    {% if s != 0 %}
+        TEMPERATURE_WAIT SENSOR=heater_bed MINIMUM={s} MAXIMUM={s+3}
+    {% endif %}
+
+[gcode_macro PID_EXTRUDER]
+description: 노즐 PID 튜닝 (255도 기준)
+gcode:
+    PID_CALIBRATE HEATER=extruder TARGET=255
+    SAVE_CONFIG
+
+[gcode_macro PID_BED]
+description: 베드 PID 튜닝 (110도 기준)
+gcode:
+    PID_CALIBRATE HEATER=heater_bed TARGET=110
+    SAVE_CONFIG
+
+[gcode_macro SETTLE_Z_BELTS]
+description: Z축 벨트 장력 조절 후 고임 현상(Hysteresis) 해소를 위한 상하 반복 이동 매크로
+gcode:
+    # --------- 설정 값 (본인 환경에 맞게 수정하세요) ---------
+    {% set speed = 12000 %}      # 이동 속도 (mm/min). 200mm/s = 12000. 너무 빠르면 탈조 위험.
+    {% set iterations = 10 %}    # 왕복 횟수 (보통 10~20회 권장)
+    {% set z_max = 200 %}        # 올라갈 최대 높이 (안전을 위해 최대 높이보다 약간 낮게 설정)
+    {% set z_min = 30 %}         # 내려갈 최소 높이
+    # ----------------------------------------------------
+
+    # 1. 홈(Home) 확인 및 수행
+    {% if "xyz" not in printer.toolhead.homed_axes %}
+        M117 Homing...
+        G28
+    {% endif %}
+
+    # 2. 절대 좌표 모드 및 모터 켜기
+    G90
+    M117 Centering Toolhead...
+
+    # 3. 툴헤드를 베드 정중앙으로 이동 (무게 중심 밸런스 유지)
+    {% set center_x = printer.toolhead.axis_maximum.x / 2 %}
+    {% set center_y = printer.toolhead.axis_maximum.y / 2 %}
+    G0 X{center_x} Y{center_y} Z{z_min} F{speed}
+
+    # 4. 상하 반복 이동 루프 시작
+    M117 Settling Z Belts...
+    {% for i in range(iterations) %}
+        M118 Cycle {i + 1} / {iterations} : Moving Up...
+        G0 Z{z_max} F{speed}
+        M118 Cycle {i + 1} / {iterations} : Moving Down...
+        G0 Z{z_min} F{speed}
+    {% endfor %}
+
+    # 5. 완료 알림 및 QGL 권장 메시지
+    M117 Z Belts Settled.
+    M118 Z Belts Settling Complete. Please run QUAD_GANTRY_LEVEL now.
+    
+[gcode_macro TEST_SPEED]
+description: Test for max speed and acceleration parameters for the printer. Procedure: Home -> ReadPositionFromMCU -> MovesToolhead@Vel&Accel -> Home -> ReadPositionfromMCU
+gcode:
+    # Speed
+    {% set speed  = params.SPEED|default(printer.configfile.settings.printer.max_velocity)|int %}
+    # Iterations
+    {% set iterations = params.ITERATIONS|default(5)|int %}
+    # Acceleration
+    {% set accel  = params.ACCEL|default(printer.configfile.settings.printer.max_accel)|int %}
+    # Minimum Cruise Ratio
+    {% set min_cruise_ratio = params.MIN_CRUISE_RATIO|default(0.5)|float %}
+    # Bounding inset for large pattern (helps prevent slamming the toolhead into the sides after small skips, and helps to account for machines with imperfectly set dimensions)
+    {% set bound = params.BOUND|default(20)|int %}
+    # Size for small pattern box
+    {% set smallpatternsize = SMALLPATTERNSIZE|default(20)|int %}
+    
+    # Large pattern
+        # Max positions, inset by BOUND
+        {% set x_min = printer.toolhead.axis_minimum.x %}
+        {% if x_min < 0 %}
+            {% set x_min = 0 %}
+        {% endif %}
+    
+        {% set y_min = printer.toolhead.axis_minimum.y %}
+        {% if y_min < 0 %}
+            {% set y_min = 0 %}
+        {% endif %}
+    
+        {% set x_min = x_min + bound %}
+        {% set x_max = printer.toolhead.axis_maximum.x - bound %}
+        {% set y_min = y_min + bound %}
+        {% set y_max = printer.toolhead.axis_maximum.y - bound %}
+    
+    # Small pattern at center
+        # Find X/Y center point
+        {% set x_center = (printer.toolhead.axis_minimum.x|float + printer.toolhead.axis_maximum.x|float ) / 2 %}
+        {% set y_center = (printer.toolhead.axis_minimum.y|float + printer.toolhead.axis_maximum.y|float ) / 2 %}
+        
+        # Set small pattern box around center point
+        {% set x_center_min = x_center - (smallpatternsize/2) %}
+        {% set x_center_max = x_center + (smallpatternsize/2) %}
+        {% set y_center_min = y_center - (smallpatternsize/2) %}
+        {% set y_center_max = y_center + (smallpatternsize/2) %}
+
+    # Save current gcode state (absolute/relative, etc)
+    SAVE_GCODE_STATE NAME=TEST_SPEED
+    
+    # Output parameters to g-code terminal
+    { action_respond_info("TEST_SPEED: starting %d iterations at speed %d, accel %d" % (iterations, speed, accel)) }
+    
+    # Home and get position for comparison later:
+        M400 # Finish moves - https://github.com/AndrewEllis93/Print-Tuning-Guide/issues/66
+        G28
+        # QGL if not already QGLd (only if QGL section exists in config)
+        {% if printer.configfile.settings.quad_gantry_level %}
+            {% if printer.quad_gantry_level.applied == False %}
+                QUAD_GANTRY_LEVEL
+                G28 Z
+            {% endif %}
+        {% endif %} 
+        # Move 50mm away from max position and home again (to help with hall effect endstop accuracy - https://github.com/AndrewEllis93/Print-Tuning-Guide/issues/24)
+        G90
+        G1 X{printer.toolhead.axis_maximum.x-50} Y{printer.toolhead.axis_maximum.y-50} F{30*60}
+        M400 # Finish moves - https://github.com/AndrewEllis93/Print-Tuning-Guide/issues/66
+        G28 X Y
+        G0 X{printer.toolhead.axis_maximum.x-1} Y{printer.toolhead.axis_maximum.y-1} F{30*60}
+        G4 P1000 
+        GET_POSITION
+
+    # Go to starting position
+    G0 X{x_min} Y{y_min} Z{bound + 10} F{speed*60}
+
+    # Set new limits
+    {% if printer.configfile.settings.printer.minimum_cruise_ratio is defined %}
+        SET_VELOCITY_LIMIT VELOCITY={speed} ACCEL={accel} MINIMUM_CRUISE_RATIO={min_cruise_ratio}
+    {% else %}
+        SET_VELOCITY_LIMIT VELOCITY={speed} ACCEL={accel} ACCEL_TO_DECEL={accel / 2}
+    {% endif %}
+
+    {% for i in range(iterations) %}
+        # Large pattern diagonals
+        G0 X{x_min} Y{y_min} F{speed*60}
+        G0 X{x_max} Y{y_max} F{speed*60}
+        G0 X{x_min} Y{y_min} F{speed*60}
+        G0 X{x_max} Y{y_min} F{speed*60}
+        G0 X{x_min} Y{y_max} F{speed*60}
+        G0 X{x_max} Y{y_min} F{speed*60}
+        
+        # Large pattern box
+        G0 X{x_min} Y{y_min} F{speed*60}
+        G0 X{x_min} Y{y_max} F{speed*60}
+        G0 X{x_max} Y{y_max} F{speed*60}
+        G0 X{x_max} Y{y_min} F{speed*60}
+    
+        # Small pattern diagonals
+        G0 X{x_center_min} Y{y_center_min} F{speed*60}
+        G0 X{x_center_max} Y{y_center_max} F{speed*60}
+        G0 X{x_center_min} Y{y_center_min} F{speed*60}
+        G0 X{x_center_max} Y{y_center_min} F{speed*60}
+        G0 X{x_center_min} Y{y_center_max} F{speed*60}
+        G0 X{x_center_max} Y{y_center_min} F{speed*60}
+        
+        # Small pattern box
+        G0 X{x_center_min} Y{y_center_min} F{speed*60}
+        G0 X{x_center_min} Y{y_center_max} F{speed*60}
+        G0 X{x_center_max} Y{y_center_max} F{speed*60}
+        G0 X{x_center_max} Y{y_center_min} F{speed*60}
+    {% endfor %}
+
+    # Restore max speed/accel/accel_to_decel to their configured values
+    {% if printer.configfile.settings.printer.minimum_cruise_ratio is defined %}
+        SET_VELOCITY_LIMIT VELOCITY={printer.configfile.settings.printer.max_velocity} ACCEL={printer.configfile.settings.printer.max_accel} MINIMUM_CRUISE_RATIO={printer.configfile.settings.printer.minimum_cruise_ratio} 
+    {% else %}
+        SET_VELOCITY_LIMIT VELOCITY={printer.configfile.settings.printer.max_velocity} ACCEL={printer.configfile.settings.printer.max_accel} ACCEL_TO_DECEL={printer.configfile.settings.printer.max_accel_to_decel}
+    {% endif %}
+
+    # Re-home and get position again for comparison:
+        M400 # Finish moves - https://github.com/AndrewEllis93/Print-Tuning-Guide/issues/66
+        G28 # This is a full G28 to fix an issue with CoreXZ - https://github.com/AndrewEllis93/Print-Tuning-Guide/issues/12
+        # Go to XY home positions (in case your homing override leaves it elsewhere)
+        G90
+        G0 X{printer.toolhead.axis_maximum.x-1} Y{printer.toolhead.axis_maximum.y-1} F{30*60}
+        G4 P1000 
+        GET_POSITION
+
+    # Restore previous gcode state (absolute/relative, etc)
+    RESTORE_GCODE_STATE NAME=TEST_SPEED
+
+[gcode_macro CHOPPER_TUNE_ADAPTIVE]
+description: Run chopper resonance tuning with adaptive search
+gcode:
+  CHOPPER_TUNE {rawparams} SEARCH_METHOD=adaptive
+
+[gcode_macro MAINTENANCE]
+description: 정비 위치로 이동 (중앙 앞쪽, Z 높게)
+gcode:
+    {% set max_x = printer.toolhead.axis_maximum.x %}
+    {% set max_z = printer.toolhead.axis_maximum.z %}
+    {% set speed = 18000 %}
+
+    {% if "xyz" not in printer.toolhead.homed_axes %}
+       CG28
+    {% endif %}
+
+    G90
+    # X는 중앙, Y는 0(맨 앞), Z는 최대 높이에서 50mm 뺀 위치
+    G1 X{max_x / 2} Y0 Z{max_z - 150} F{speed}
+    
+    {action_respond_info("Moved to Maintenance Position")}
