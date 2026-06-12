@@ -125,6 +125,8 @@ SET_Z_FROM_PROBE: custom macro that uses BD Pressure `PROBE` then `SET_KINEMATIC
 QUAD_GANTRY_LEVEL / CQGL: stock Klipper QGL consumes standard `[probe]`, so it is BD Pressure-backed in this architecture
 ```
 
+BD Pressure probe sampling intentionally follows the upstream-tolerant policy for QGL use: `samples: 2`, `sample_retract_dist: 3`, `samples_tolerance: 0.03`, and double `PA_RESET` in `activate_gcode`. Do not tighten this without fresh `PROBE_ACCURACY` evidence.
+
 `register_as_probe: false` in `printer_cartographer.cfg` is intentional. It prevents Cartographer from owning the stock `probe` object while still allowing `cartographer_probe:z_virtual_endstop` for Z homing.
 
 If the hard requirement becomes "BD Pressure must never be used for QGL", this cannot be fixed by PRINT_START ordering alone. It requires an architecture change, such as making Cartographer the stock `[probe]` again or adding a named BD Pressure probe path separate from stock `[probe]`.
