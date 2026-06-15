@@ -1,0 +1,307 @@
+Voron RPi4B + BTT Manta M8P V2
+UART 플래싱 및 MCU 경로 관리 문서
+
+작성 기준: 2026-06-11 / 대상: Voron 외장 Raspberry Pi 4B + Manta M8P V2 + CH341 UART bridge 구성
+
+최종 요약
+Manta M8P V2의 STM32H723은 USB DFU 장치로 보이지 않고 CH341 USB-UART bridge 경로로 접근한다. 실제 플래싱은 STM32 ROM UART bootloader에 BOOT0+RESET으로 진입한 뒤, stm32loader를 사용해 0x08000000 주소에 No-bootloader Klipper firmware를 쓰는 방식으로 성공했다.
+
+1. 현재 확정된 결론
+------------
+
+항목 | 내용
+메인보드 | BTT Manta M8P V2.0, STM32H723 계열
+Host | Raspberry Pi 4B, Klipper/Moonraker/Mainsail
+통신 경로 | Raspberry Pi USB -> CH341 bridge -> STM32H723 USART1 PA9/PA10
+운영 baud | 250000
+Klipper build | No bootloader, application address 0x08000000, Serial USART1 PA10/PA9
+플래싱 도구 | stm32loader 성공, stm32flash는 H7 write/verify에서 실패
+Manta serial path | CH341 장치가 여러 개이므로 /dev/serial/by-path 사용. 현재 후보: ...usb-0:1.3:1.0-port0
+Cartographer | USB CDC ACM, by-id 사용 가능: usb-Cartographer_614e_...
+BDWidth/BDPressure | CH341 기반이면 by-id/auto 금지. 각 장치를 by-path로 고정
+
+주의
+현재 방식은 bootloader 없이 Klipper firmware를 0x08000000에 직접 기록하는 방식이다. 향후 M8P firmware를 다시 빌드할 때도 반드시 No bootloader를 유지해야 한다. 나중에 Katapult를 도입하면 구조가 0x08000000=Katapult, 0x08020000=Klipper로 바뀌므로 Klipper build offset도 128KiB로 바꿔야 한다.
+
+2. 문제 원인 및 해결 흐름
+----------------
+
+증상 | 판단 | 해결
+Mainsail STARTUP / Wait for identify_response | Manta MCU가 identify_response를 반환하지 못함 | 펌웨어 build, serial path, BOOT0 상태를 분리해 확인
+CH341은 보이지만 DFU 0483:df11이 안 보임 | Pi가 보는 장치는 STM32 native USB가 아니라 CH341 bridge | DFU 대신 UART ROM bootloader로 접근
+stm32flash에서 Device ID 0x483 인식 | UART ROM bootloader 진입 및 TX/RX/GND 경로는 정상 | write 도구를 stm32loader로 변경
+stm32flash verify fail, found 0xff | erase는 되었으나 STM32H723 flash write가 적용되지 않음 | stm32loader로 재시도하여 Verification OK 확인
+stty: invalid argument 250000 | Linux stty가 250000 baud를 지원하지 않음 | 자동 bootloader request는 Python pyserial로 전송하거나 수동 BOOT0+RESET 사용
+usb-1a86_USB_Serial-if00-port0 충돌 | CH341/CH340 계열이 여러 개라 by-id가 고유하지 않음 | Manta/BD 계열은 by-path로 고정
+
+3. USB/serial 경로 관리 원칙
+----------------------
+
+Manta M8P V2: CH341 계열이므로 by-id가 아니라 by-path로 고정한다.
+
+Cartographer: USB CDC ACM 장치이며 고유 by-id가 있으므로 by-id 사용이 적합하다.
+
+Hexa/기타 Klipper USB MCU: 고유 by-id가 있으면 by-id 사용이 가능하다.
+
+BDWidth/BDPressure: CH341 기반이면 auto 또는 usb-1a86 by-id를 피하고 각 포트를 by-path로 고정한다.
+
+USB 포트 변경 주의: by-path는 물리 포트/허브 경로에 종속된다. 허브 포트가 바뀌면 path도 바뀐다.
+
+# 현재 경로 확인
+ls -l /dev/serial/by-path/
+ls -l /dev/serial/by-id/
+
+# CH341/USB ACM 상세 매핑 확인
+for d in /dev/ttyUSB* /dev/ttyACM*; do
+  [ -e "$d" ] || continue
+  echo "===== $d ====="
+  udevadm info -q property -n "$d" | grep -E 'DEVNAME=|ID_PATH=|ID_SERIAL=|ID_VENDOR_ID=|ID_MODEL_ID='
+done
+
+현재 대화 기준으로 전원 인가 후 새로 나타난 M8P 후보 path:
+
+/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.3:1.0-port0 -> ../../ttyUSB1
+
+4. M8P Klipper firmware build 기준
+--------------------------------
+
+cd ~/klipper
+make menuconfig
+
+menuconfig 항목 | 선택값
+Micro-controller Architecture | STMicroelectronics STM32
+Processor model | STM32H723
+Bootloader offset | No bootloader
+Clock Reference | 25 MHz crystal
+Communication interface | Serial (on USART1 PA10/PA9)
+Baud rate for serial port | 250000
+
+make clean
+make
+
+grep -E "CONFIG_FLASH_APPLICATION_ADDRESS|CONFIG_STM32_FLASH_START|CONFIG_STM32_SERIAL_USART1|CONFIG_USB_SERIAL|CONFIG_SERIAL_BAUD" ~/klipper/.config
+
+정상 기대값
+CONFIG_FLASH_APPLICATION_ADDRESS=0x8000000, CONFIG_STM32_FLASH_START_0000=y, CONFIG_STM32_SERIAL_USART1=y, CONFIG_SERIAL_BAUD=250000이 보여야 한다. CONFIG_USB_SERIAL_* 쪽이면 M8P UART용 build가 아니다.
+
+5. 수동 BOOT0 + stm32loader 플래싱 절차
+--------------------------------
+
+Klipper 서비스를 중지한다.
+
+Manta M8P의 BOOT0 버튼을 누른 상태에서 RESET을 짧게 눌렀다 놓고, 이후 BOOT0를 놓는다.
+
+stm32loader로 Chip ID 0x483 / STM32H72xxx/73xxx가 보이는지 확인한다.
+
+0x08000000 주소에 Klipper firmware를 기록한다.
+
+BOOT0가 눌려 있지 않은 상태에서 Manta를 reset 또는 power-cycle 한다.
+
+Klipper 서비스를 다시 시작한다.
+
+sudo service klipper stop
+
+MANTA_PORT=/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.3:1.0-port0
+
+# BOOT0 + RESET 후, M8P 확인
+~/.local/bin/stm32loader -p "$MANTA_PORT"
+
+# 기대값 예시:
+# Chip ID: 0x483
+# Chip model: STM32H72xxx/73xxx
+
+# 플래시
+~/.local/bin/stm32loader \
+  -p "$MANTA_PORT" \
+  -e -w -v \
+  -a 0x08000000 \
+  -g 0x08000000 \
+  ~/klipper/out/klipper.bin
+
+# 완료 후 BOOT0 해제 상태에서 reset/power-cycle
+sudo service klipper start
+
+성공 판정
+stm32loader 출력에 Verification OK가 나오면 flash write/verify가 성공한 것이다. 이후 Mainsail에서 프린터 상태가 표시되고 klippy.log에 MCU=mcu config가 출력되면 Manta identify_response까지 통과한 것이다.
+
+6. printer.cfg 핵심 설정
+--------------------
+
+[mcu]
+serial: /dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.3:1.0-port0
+baud: 250000
+restart_method: command
+
+금지 경로
+CH341 장치가 여러 개라면 serial: /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0 는 사용하지 않는다. 현재 Manta가 아닌 BDWidth/BDPressure 쪽을 가리킬 수 있다.
+
+7. flash_m8p_uart_rom.sh 권장 스크립트
+--------------------------------
+
+자동 bootloader request는 stty 250000이 실패할 수 있으므로 pyserial로 전송한다. 그래도 실패하면 M8P_MANUAL_BOOT=1로 수동 BOOT0+RESET 후 실행한다.
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+PORT="${MANTA_PORT:-/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.3:1.0-port0}"
+FW="${1:-/home/sukbeom/klipper/out/klipper.bin}"
+STM32LOADER="${STM32LOADER:-/home/sukbeom/.local/bin/stm32loader}"
+APP_ADDR="${APP_ADDR:-0x08000000}"
+
+if [[ ! -e "$PORT" ]]; then
+  echo "ERROR: Manta UART port not found: $PORT" >&2
+  echo "Current serial paths:" >&2
+  ls -l /dev/serial/by-path/ 2>/dev/null || true
+  exit 2
+fi
+
+if [[ ! -s "$FW" ]]; then
+  echo "ERROR: firmware file missing or empty: $FW" >&2
+  exit 2
+fi
+
+if [[ ! -x "$STM32LOADER" ]]; then
+  echo "ERROR: stm32loader not executable: $STM32LOADER" >&2
+  exit 2
+fi
+
+echo "Using Manta UART port: $PORT"
+echo "Using firmware: $FW"
+
+sudo service klipper stop || true
+sleep 2
+
+if [[ "${M8P_MANUAL_BOOT:-0}" != "1" ]]; then
+  echo "Requesting serial bootloader via Klipper physical serial request..."
+  python3 - "$PORT" <<'PY'
+import sys
+import time
+import serial
+port = sys.argv[1]
+with serial.Serial(port, 250000, timeout=0.5) as s:
+    s.write(b"~ \x1c Request Serial Bootloader!! ~")
+    s.flush()
+time.sleep(2)
+PY
+else
+  echo "Manual bootloader mode selected. Make sure BOOT0 + RESET was already performed."
+fi
+
+echo "Flashing Manta M8P V2 via STM32 ROM UART bootloader..."
+"$STM32LOADER"   -p "$PORT"   -e -w -v   -a "$APP_ADDR"   -g "$APP_ADDR"   "$FW"
+
+echo "Flash complete. Reset or power-cycle Manta, then run: sudo service klipper start"
+
+chmod +x ~/bin/flash_m8p_uart_rom.sh
+
+# 자동 진입 시도
+MANTA_PORT=/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.3:1.0-port0 \
+  ~/bin/flash_m8p_uart_rom.sh
+
+# 수동 BOOT0+RESET 후 실행
+M8P_MANUAL_BOOT=1 \
+MANTA_PORT=/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.3:1.0-port0 \
+  ~/bin/flash_m8p_uart_rom.sh
+
+8. moonraker-mcu-flasher 운용 방향
+------------------------------
+
+UKAM은 기능이 중복되므로 제거한다.
+
+M8P firmware update는 moonraker-mcu-flasher에서 위 스크립트를 flash_cmd로 호출하는 방식으로 통합한다.
+
+자동 bootloader request가 실패할 수 있으므로, 필요 시 BOOT0+RESET 후 M8P_MANUAL_BOOT=1 경로로 실행한다.
+
+mcu_flasher.cfg include는 유지한다.
+
+# printer.cfg
+[include mcu_flasher.cfg]
+
+# moonraker.conf 예시
+[update_manager mcu_flasher]
+type: git_repo
+path: ~/moonraker-mcu-flasher
+origin: https://github.com/juliapythoncpp/moonraker-mcu-flasher.git
+is_system_service: False
+managed_services: klipper moonraker
+
+# 실제 [mcu_flasher ...] 섹션 문법은 설치된 moonraker-mcu-flasher README와
+# 현재 repo의 예시 cfg를 기준으로 확인 후 적용한다.
+# flash_cmd에는 최종적으로 아래 스크립트를 호출하도록 둔다.
+# /home/sukbeom/bin/flash_m8p_uart_rom.sh /home/sukbeom/klipper/out/klipper.bin
+
+9. UKAM 제거 체크리스트
+----------------
+
+# 관련 항목 검색
+grep -Rns "ukam\|update_klipper_and_mcus" \
+  ~/printer_data/config \
+  ~/.bashrc ~/.profile ~/.bash_aliases 2>/dev/null
+
+# moonraker.conf에서 아래 블록 제거 또는 주석 처리
+# [update_manager update_klipper_and_mcus]
+
+# 파일 제거
+rm -rf ~/ukam
+rm -rf ~/printer_data/config/ukam
+
+# symlink이면 제거
+if [ -L ~/printer_data/ukam ]; then
+  rm -f ~/printer_data/ukam
+fi
+
+sudo service moonraker restart
+sudo service klipper restart
+
+10. 정상 상태 검증 명령
+---------------
+
+# Manta MCU config가 USART1/250000인지 확인
+grep -n "MCU 'mcu' config" ~/printer_data/logs/klippy.log | tail -5
+
+# 기대값에 포함되어야 하는 항목
+# MCU=stm32h723xx
+# RESERVE_PINS_serial=PA10,PA9
+# SERIAL_BAUD=250000
+
+# 최근 MCU 오류 확인
+grep -iE "mcu '|MCU '|Starting serial connect|Unable to connect|Timeout|Wait for identify|Serial connection closed|shutdown|error|cartographer|EBBusb|hexa" \
+  ~/printer_data/logs/klippy.log | tail -250
+
+# 서비스 상태
+systemctl status klipper --no-pager
+systemctl status moonraker --no-pager
+
+11. 참고 자료
+---------
+
+자료 | 용도 | URL
+BTT Manta M8P V2 generic Klipper config | STM32H723, 128KiB bootloader, 25 MHz crystal, USB/CAN/USART1 선택 기준 | https://github.com/bigtreetech/Manta-M8P/blob/master/V2.0/Firmware/generic-bigtreetech-manta-m8p-V2_0.cfg
+Klipper Bootloader Entry | serial/virtual serial bootloader 진입 요청 원리 | https://www.klipper3d.org/Bootloader_Entry.html
+Klipper Bootloaders | bootloader와 application firmware 영역 구분 | https://www.klipper3d.org/Bootloaders.html
+moonraker-mcu-flasher | Mainsail/Fluidd/KlipperScreen console에서 MCU flash 명령 제공 | https://github.com/juliapythoncpp/moonraker-mcu-flasher
+UKAM | update_klipper_and_mcus 제거/비사용 판단 대상 | https://github.com/fbeauKmi/update_klipper_and_mcus
+stm32loader | STM32 UART bootloader를 통한 erase/write/verify 도구 | https://pypi.org/project/stm32loader/
+
+
+
+M8P  : No bootloader, USART1, stm32loader, 0x08000000
+EBB  : Katapult, USB, make flash/flashtool, 0x08002000
+
+## EBB USB MCU 백업 메모
+
+목적:
+- M8P와 별도로 EBB toolhead MCU의 Klipper build config를 저장한다.
+- M8P UART flashing config와 혼동하지 않도록 EBB용 kconfig를 별도 파일로 관리한다.
+
+저장 위치:
+- EBB kconfig: ~/klipper-kconfigs/ebb36_42_g0b1_usb_katapult.config.config
+- EBB firmware backup: ~/firmware-backups/ebb36_42_g0b1_usb_katapult.config_YYYYMMDD_HHMM.bin
+
+확인 명령:
+ls -l /dev/serial/by-id/
+grep -n "MCU 'EBB" ~/printer_data/logs/klippy.log | tail -10
+
+주의:
+- EBB용 make menuconfig 후에는 ~/klipper/.config가 EBB용으로 바뀐다.
+- M8P를 다시 빌드하려면 ~/klipper-kconfigs/m8p_uart_noboot.config를 ~/klipper/.config로 복구해야 한다.
