@@ -1,0 +1,10 @@
+ .moonraker.conf.bkp          | 48 +++++++++++-----------
+ macros.cfg                   | 87 +++++++++++++++-------------------------
+ moonraker.conf               | 36 +++++++++--------
+ printer.cfg                  | 95 ++++++--------------------------------------
+ printer_bdwidth.cfg          | 42 ++++++++++++--------
+ printer_cartographer.cfg     |  3 +-
+ printer_filament_sensors.cfg | 39 +++++++++---------
+ printer_mainboard.cfg        |  2 +-
+ variables.cfg                |  4 ++
+ 9 files changed, 139 insertions(+), 217 deletions(-)
