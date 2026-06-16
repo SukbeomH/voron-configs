@@ -1,0 +1,6 @@
+NAME        LABEL  MODEL   SIZE TYPE MOUNTPOINT
+loop0                        2G loop 
+mmcblk0                  238.5G disk 
+├─mmcblk0p1 bootfs         512M part /boot/firmware
+└─mmcblk0p2 rootfs         238G part /
+zram0       zram0            2G disk [SWAP]

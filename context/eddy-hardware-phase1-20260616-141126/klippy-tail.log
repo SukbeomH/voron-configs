@@ -1,0 +1,220 @@
+	25, 200
+	215, 200
+	215, 0
+speed = 250
+horizontal_move_z = 5
+retries = 10
+retry_tolerance = 0.030
+max_adjust = 10
+
+[telemetry]
+enabled = False
+=======================
+temperature_probe btt_eddy: No drift calibration configured, disabling temperature drift compensation
+temperature_probe btt_eddy: registered drift compensation with probe [probe_eddy_current btt_eddy]
+BMxx80: Oversampling: Temp 2x Humid 2x Pressure 2x
+BMxx80: IIR: 1x
+Extruder max_extrude_ratio=0.266081
+mcu 'mcu': Starting serial connect
+webhooks client 547297782544: New connection
+webhooks client 547297782544: Client info {'program': 'Moonraker', 'version': 'v0.10.0-20-g9008485'}
+mcu 'mcu': got {'count': 156, 'sum': 174339, 'sumsq': 1052264, '#name': 'stats', '#sent_time': 45444.945904153, '#receive_time': 45444.981710727}
+Loaded MCU 'mcu' 139 commands (v0.13.0-689-g2fb3d54e / gcc: (15:14.2.rel1-1) 14.2.1 20241119 binutils: (2.44-3+23+b2) 2.44)
+MCU 'mcu' config: ADC_MAX=4095 BUS_PINS_i2c1_PB6_PB7=PB6,PB7 BUS_PINS_i2c1_PB8_PB9=PB8,PB9 BUS_PINS_i2c2_PB10_PB11=PB10,PB11 BUS_PINS_i2c3_PA8_PC9=PA8,PC9 BUS_PINS_spi1=PA6,PA7,PA5 BUS_PINS_spi1a=PB4,PB5,PB3 BUS_PINS_spi2=PB14,PB15,PB13 BUS_PINS_spi2a=PC2,PC3,PB10 BUS_PINS_spi2b=PI2,PI3,PI1 BUS_PINS_spi3a=PC11,PC12,PC10 BUS_PINS_spi4=PE13,PE14,PE12 BUS_PINS_spi5=PF8,PF9,PF7 BUS_PINS_spi5a=PH7,PF11,PH6 BUS_PINS_spi6=PG12,PG14,PG13 CLOCK_FREQ=520000000 MCU=stm32h723xx PWM_MAX=32768 RECEIVE_WINDOW=192 RESERVE_PINS_crystal=PH0,PH1 RESERVE_PINS_serial=PA10,PA9 SERIAL_BAUD=250000 STATS_SUMSQ_BASE=256 STEPPER_STEP_BOTH_EDGE=1
+mcu 'EBBusb': Starting serial connect
+Loaded MCU 'EBBusb' 139 commands (v0.13.0-699-gc707dd19 / gcc: (15:14.2.rel1-1) 14.2.1 20241119 binutils: (2.44-3+23+b2) 2.44)
+MCU 'EBBusb' config: ADC_MAX=4095 BUS_PINS_i2c1_PA9_PA10=PA9,PA10 BUS_PINS_i2c1_PB6_PB7=PB6,PB7 BUS_PINS_i2c1_PB8_PB9=PB8,PB9 BUS_PINS_i2c2_PA7_PA6=PA7,PA6 BUS_PINS_i2c2_PB10_PB11=PB10,PB11 BUS_PINS_i2c2_PB13_PB14=PB13,PB14 BUS_PINS_i2c3_PA7_PA6=PA7,PA6 BUS_PINS_i2c3_PB3_PB4=PB3,PB4 BUS_PINS_i2c3_PC0_PC1=PC0,PC1 BUS_PINS_spi1=PA6,PA7,PA5 BUS_PINS_spi1_PA6_PA7_PA5=PA6,PA7,PA5 BUS_PINS_spi1_PB4_PB5_PB3=PB4,PB5,PB3 BUS_PINS_spi1a=PB4,PB5,PB3 BUS_PINS_spi2=PB14,PB15,PB13 BUS_PINS_spi2_PB14_PB15_PB13=PB14,PB15,PB13 BUS_PINS_spi2_PB2_PB11_PB10=PB2,PB11,PB10 BUS_PINS_spi2_PB6_PB7_PB8=PB6,PB7,PB8 BUS_PINS_spi2_PC2_PC3_PB10=PC2,PC3,PB10 BUS_PINS_spi2a=PC2,PC3,PB10 BUS_PINS_spi3=PB4,PB5,PB3 BUS_PINS_spi3_PB4_PB5_PB3=PB4,PB5,PB3 BUS_PINS_spi3_PC11_PC12_PC10=PC11,PC12,PC10 CLOCK_FREQ=64000000 MCU=stm32g0b1xx PWM_MAX=32768 RESERVE_PINS_USB=PA11,PA12 RESERVE_PINS_crystal=PF0,PF1 STATS_SUMSQ_BASE=256 STEPPER_OPTIMIZED_EDGE=8 STEPPER_STEP_BOTH_EDGE=1
+mcu 'eddy': Starting serial connect
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+mcu 'eddy': Unable to open serial port: [Errno 2] could not open port /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00: [Errno 2] No such file or directory: '/dev/serial/by-id/usb-Klipper_rp2040_eddy-if00'
+MCU error during connect
+Traceback (most recent call last):
+  File "/home/sukbeom/klipper/klippy/mcu.py", line 866, in _attach
+    self._serial.connect_uart(self._serialport, self._baud, rts)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sukbeom/klipper/klippy/serialhdl.py", line 191, in connect_uart
+    self._error("Unable to connect")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sukbeom/klipper/klippy/serialhdl.py", line 68, in _error
+    raise error(self.warn_prefix + (msg % params))
+serialhdl.error: mcu 'eddy': Unable to connect
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sukbeom/klipper/klippy/klippy.py", line 131, in _connect
+    self.send_event("klippy:mcu_identify")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sukbeom/klipper/klippy/klippy.py", line 227, in send_event
+    return [cb(*params) for cb in self.event_handlers.get(event, [])]
+            ~~^^^^^^^^^
+  File "/home/sukbeom/klipper/klippy/mcu.py", line 876, in _mcu_identify
+    self._attach()
+    ~~~~~~~~~~~~^^
+  File "/home/sukbeom/klipper/klippy/mcu.py", line 871, in _attach
+    raise error(str(e))
+mcu.error: mcu 'eddy': Unable to connect
+mcu 'eddy': Unable to connect
+Once the underlying issue is corrected, use the
+"FIRMWARE_RESTART" command to reset the firmware, reload the
+config, and restart the host software.
+Error configuring printer
+
+Build file /home/sukbeom/klipper/klippy/../.config(3992): Mon Jun 15 18:50:49 2026
+========= Last MCU build config =========
+CONFIG_LOW_LEVEL_OPTIONS=y
+# CONFIG_MACH_AVR is not set
+# CONFIG_MACH_ATSAM is not set
+# CONFIG_MACH_ATSAMD is not set
+# CONFIG_MACH_LPC176X is not set
+CONFIG_MACH_STM32=y
+# CONFIG_MACH_HC32F460 is not set
+# CONFIG_MACH_RPXXXX is not set
+# CONFIG_MACH_PRU is not set
+# CONFIG_MACH_AR100 is not set
+# CONFIG_MACH_LINUX is not set
+# CONFIG_MACH_SIMU is not set
+CONFIG_BOARD_DIRECTORY="stm32"
+CONFIG_MCU="stm32g0b1xx"
+CONFIG_CLOCK_FREQ=64000000
+CONFIG_USBSERIAL=y
+CONFIG_FLASH_SIZE=0x20000
+CONFIG_FLASH_BOOT_ADDRESS=0x8000000
+CONFIG_RAM_START=0x20000000
+CONFIG_RAM_SIZE=0x24000
+CONFIG_STACK_SIZE=512
+CONFIG_FLASH_APPLICATION_ADDRESS=0x8002000
+CONFIG_STM32_SELECT=y
+# CONFIG_MACH_STM32F103 is not set
+# CONFIG_MACH_STM32F207 is not set
+# CONFIG_MACH_STM32F401 is not set
+# CONFIG_MACH_STM32F405 is not set
+# CONFIG_MACH_STM32F407 is not set
+# CONFIG_MACH_STM32F429 is not set
+# CONFIG_MACH_STM32F446 is not set
+# CONFIG_MACH_STM32F765 is not set
+# CONFIG_MACH_STM32F031 is not set
+# CONFIG_MACH_STM32F042 is not set
+# CONFIG_MACH_STM32F070 is not set
+# CONFIG_MACH_STM32F072 is not set
+# CONFIG_MACH_STM32G070 is not set
+# CONFIG_MACH_STM32G071 is not set
+# CONFIG_MACH_STM32G0B0 is not set
+CONFIG_MACH_STM32G0B1=y
+# CONFIG_MACH_STM32G431 is not set
+# CONFIG_MACH_STM32G474 is not set
+# CONFIG_MACH_STM32H723 is not set
+# CONFIG_MACH_STM32H743 is not set
+# CONFIG_MACH_STM32H750 is not set
+# CONFIG_MACH_STM32L412 is not set
+# CONFIG_MACH_N32G452 is not set
+# CONFIG_MACH_N32G455 is not set
+CONFIG_MACH_STM32G0=y
+CONFIG_MACH_STM32G0Bx=y
+CONFIG_HAVE_STM32_USBFS=y
+CONFIG_STM32_USB_DOUBLE_BUFFER_TX=y
+CONFIG_HAVE_STM32_FDCANBUS=y
+CONFIG_HAVE_STM32_USBCANBUS=y
+CONFIG_STM32_DFU_ROM_ADDRESS=0x1fff0000
+CONFIG_STM32_FLASH_START_2000=y
+# CONFIG_STM32_FLASH_START_0000 is not set
+CONFIG_STM32_CLOCK_REF_8M=y
+# CONFIG_STM32_CLOCK_REF_12M is not set
+# CONFIG_STM32_CLOCK_REF_16M is not set
+# CONFIG_STM32_CLOCK_REF_20M is not set
+# CONFIG_STM32_CLOCK_REF_24M is not set
+# CONFIG_STM32_CLOCK_REF_25M is not set
+# CONFIG_STM32_CLOCK_REF_INTERNAL is not set
+CONFIG_CLOCK_REF_FREQ=8000000
+CONFIG_STM32F0_TRIM=16
+CONFIG_STM32_USB_PA11_PA12=y
+# CONFIG_STM32_SERIAL_USART1 is not set
+# CONFIG_STM32_SERIAL_USART1_ALT_PB7_PB6 is not set
+# CONFIG_STM32_SERIAL_USART2 is not set
+# CONFIG_STM32_SERIAL_USART2_ALT_PD6_PD5 is not set
+# CONFIG_STM32_SERIAL_USART3 is not set
+# CONFIG_STM32_SERIAL_USART3_ALT_PD9_PD8 is not set
+# CONFIG_STM32_SERIAL_USART5 is not set
+# CONFIG_STM32_CANBUS_PA11_PA12 is not set
+# CONFIG_STM32_CANBUS_PA11_PB9 is not set
+# CONFIG_STM32_MMENU_CANBUS_PB8_PB9 is not set
+# CONFIG_STM32_MMENU_CANBUS_PB12_PB13 is not set
+# CONFIG_STM32_MMENU_CANBUS_PD0_PD1 is not set
+# CONFIG_STM32_MMENU_CANBUS_PB0_PB1 is not set
+# CONFIG_STM32_MMENU_CANBUS_PD12_PD13 is not set
+# CONFIG_STM32_MMENU_CANBUS_PC2_PC3 is not set
+# CONFIG_STM32_USBCANBUS_PA11_PA12 is not set
+CONFIG_USB=y
+CONFIG_USB_VENDOR_ID=0x1d50
+CONFIG_USB_DEVICE_ID=0x614e
+CONFIG_USB_SERIAL_NUMBER_CHIPID=y
+CONFIG_USB_SERIAL_NUMBER="12345"
+
+#
+# USB ids
+#
+# end of USB ids
+
+CONFIG_WANT_ADC=y
+CONFIG_WANT_SPI=y
+CONFIG_WANT_SOFTWARE_SPI=y
+CONFIG_WANT_I2C=y
+CONFIG_WANT_SOFTWARE_I2C=y
+CONFIG_WANT_HARD_PWM=y
+CONFIG_WANT_BUTTONS=y
+CONFIG_WANT_TMCUART=y
+CONFIG_WANT_NEOPIXEL=y
+CONFIG_WANT_PULSE_COUNTER=y
+CONFIG_WANT_ST7920=y
+CONFIG_WANT_HD44780=y
+CONFIG_WANT_ADXL345=y
+CONFIG_WANT_LIS2DW=y
+CONFIG_WANT_BMI160=y
+CONFIG_WANT_MPU9250=y
+CONFIG_WANT_ICM20948=y
+CONFIG_WANT_THERMOCOUPLE=y
+CONFIG_WANT_HX71X=y
+CONFIG_WANT_ADS131M0X=y
+CONFIG_WANT_ADS1220=y
+CONFIG_WANT_LDC1612=y
+CONFIG_WANT_SENSOR_ANGLE=y
+CONFIG_NEED_SENSOR_BULK=y
+CONFIG_WANT_TRIGGER_ANALOG=y
+CONFIG_NEED_SOS_FILTER=y
+CONFIG_CANBUS_FREQUENCY=1000000
+CONFIG_INLINE_STEPPER_HACK=y
+CONFIG_HAVE_STEPPER_OPTIMIZED_BOTH_EDGE=y
+CONFIG_WANT_STEPPER_OPTIMIZED_BOTH_EDGE=y
+CONFIG_INITIAL_PINS=""
+CONFIG_HAVE_GPIO=y
+CONFIG_HAVE_GPIO_ADC=y
+CONFIG_HAVE_GPIO_SPI=y
+CONFIG_HAVE_GPIO_I2C=y
+CONFIG_HAVE_GPIO_HARD_PWM=y
+CONFIG_HAVE_STRICT_TIMING=y
+CONFIG_HAVE_CHIPID=y
+CONFIG_HAVE_BOOTLOADER_REQUEST=y
+=======================
+Build file /home/sukbeom/klipper/klippy/../out/klipper.dict(11189): Mon Jun 15 18:51:10 2026
+Last MCU build version: v0.13.0-699-gc707dd19
+Last MCU build tools: gcc: (15:14.2.rel1-1) 14.2.1 20241119 binutils: (2.44-3+23+b2) 2.44
+Last MCU build config: ADC_MAX=4095 BUS_PINS_i2c1_PA9_PA10=PA9,PA10 BUS_PINS_i2c1_PB6_PB7=PB6,PB7 BUS_PINS_i2c1_PB8_PB9=PB8,PB9 BUS_PINS_i2c2_PA7_PA6=PA7,PA6 BUS_PINS_i2c2_PB10_PB11=PB10,PB11 BUS_PINS_i2c2_PB13_PB14=PB13,PB14 BUS_PINS_i2c3_PA7_PA6=PA7,PA6 BUS_PINS_i2c3_PB3_PB4=PB3,PB4 BUS_PINS_i2c3_PC0_PC1=PC0,PC1 BUS_PINS_spi1=PA6,PA7,PA5 BUS_PINS_spi1_PA6_PA7_PA5=PA6,PA7,PA5 BUS_PINS_spi1_PB4_PB5_PB3=PB4,PB5,PB3 BUS_PINS_spi1a=PB4,PB5,PB3 BUS_PINS_spi2=PB14,PB15,PB13 BUS_PINS_spi2_PB14_PB15_PB13=PB14,PB15,PB13 BUS_PINS_spi2_PB2_PB11_PB10=PB2,PB11,PB10 BUS_PINS_spi2_PB6_PB7_PB8=PB6,PB7,PB8 BUS_PINS_spi2_PC2_PC3_PB10=PC2,PC3,PB10 BUS_PINS_spi2a=PC2,PC3,PB10 BUS_PINS_spi3=PB4,PB5,PB3 BUS_PINS_spi3_PB4_PB5_PB3=PB4,PB5,PB3 BUS_PINS_spi3_PC11_PC12_PC10=PC11,PC12,PC10 CLOCK_FREQ=64000000 MCU=stm32g0b1xx PWM_MAX=32768 RESERVE_PINS_USB=PA11,PA12 RESERVE_PINS_crystal=PF0,PF1 STATS_SUMSQ_BASE=256 STEPPER_OPTIMIZED_EDGE=8 STEPPER_STEP_BOTH_EDGE=1
+Build file /home/sukbeom/klipper/klippy/../out/klipper.elf(1149856): Mon Jun 15 18:51:14 2026
+b'Got EOF when reading from device'
+b'Got EOF when reading from device'
