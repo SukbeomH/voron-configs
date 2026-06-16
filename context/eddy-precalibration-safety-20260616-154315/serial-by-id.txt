@@ -1,0 +1,4 @@
+total 0
+lrwxrwxrwx 1 root root 13 Jun 16 14:23 usb-1a86_USB_Serial-if00-port0 -> ../../ttyUSB3
+lrwxrwxrwx 1 root root 13 Jun 16 15:33 usb-Klipper_rp2040_50445059387D401C-if00 -> ../../ttyACM0
+lrwxrwxrwx 1 root root 13 Jun 16 15:37 usb-Klipper_stm32g0b1xx_500031000650505539323520-if00 -> ../../ttyACM1

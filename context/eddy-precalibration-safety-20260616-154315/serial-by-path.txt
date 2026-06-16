@@ -1,0 +1,9 @@
+total 0
+lrwxrwxrwx 1 root root 13 Jun 16 14:23 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.3.1:1.0-port0 -> ../../ttyUSB3
+lrwxrwxrwx 1 root root 13 Jun 16 15:37 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.3.2:1.0 -> ../../ttyACM1
+lrwxrwxrwx 1 root root 13 Jun 16 15:33 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.3.4:1.0 -> ../../ttyACM0
+lrwxrwxrwx 1 root root 13 Jun 16 14:23 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.4:1.0-port0 -> ../../ttyUSB2
+lrwxrwxrwx 1 root root 13 Jun 16 14:23 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.3.1:1.0-port0 -> ../../ttyUSB3
+lrwxrwxrwx 1 root root 13 Jun 16 15:37 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.3.2:1.0 -> ../../ttyACM1
+lrwxrwxrwx 1 root root 13 Jun 16 15:33 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.3.4:1.0 -> ../../ttyACM0
+lrwxrwxrwx 1 root root 13 Jun 16 14:23 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.4:1.0-port0 -> ../../ttyUSB2
