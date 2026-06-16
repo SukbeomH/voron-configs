@@ -1,0 +1,26 @@
+diff --git a/printer_bdwidth.cfg b/printer_bdwidth.cfg
+index 348e8f2..56768c0 100644
+--- a/printer_bdwidth.cfg
++++ b/printer_bdwidth.cfg
+@@ -4,7 +4,7 @@ port:usb
+ #i2c_software_scl_pin:PA8
+ #i2c_software_sda_pin:PA14
+ #   needed if the port is i2c
+-serial: /dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.1:1.0-port0
++serial: /dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.3.1:1.0-port0
+ #serial: auto
+ #   needed if the port is usb
+ # note: if you also have a bd_pressure , you must use  a serial: /dev/serial/by-path method.
+diff --git a/printer_eddy.cfg b/printer_eddy.cfg
+index f62358f..0846d6e 100644
+--- a/printer_eddy.cfg
++++ b/printer_eddy.cfg
+@@ -4,7 +4,7 @@
+ #   ls -l /dev/serial/by-id
+ 
+ [mcu eddy]
+-serial: /dev/serial/by-id/usb-Klipper_rp2040_eddy-if00
++serial: /dev/serial/by-id/usb-Klipper_rp2040_50445059387D401C-if00
+ restart_method: command
+ 
+ [temperature_sensor btt_eddy_mcu]

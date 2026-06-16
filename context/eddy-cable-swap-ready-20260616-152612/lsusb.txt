@@ -1,0 +1,12 @@
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 002: ID 2109:3431 VIA Labs, Inc. Hub
+Bus 001 Device 046: ID 2109:2817 VIA Labs, Inc. USB2.0 Hub             
+Bus 001 Device 047: ID 2109:2817 VIA Labs, Inc. USB2.0 Hub             
+Bus 001 Device 048: ID 1a86:7523 QinHeng Electronics CH340 serial converter
+Bus 001 Device 049: ID 1a86:7523 QinHeng Electronics CH340 serial converter
+Bus 001 Device 050: ID 1d50:614e OpenMoko, Inc. stm32g0b1xx
+Bus 001 Device 051: ID 0bda:5856 Realtek Semiconductor Corp. USB Cam
+Bus 001 Device 052: ID 1d50:614e OpenMoko, Inc. rp2040
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 002 Device 011: ID 2109:0817 VIA Labs, Inc. USB3.0 Hub             
+Bus 002 Device 012: ID 2109:0817 VIA Labs, Inc. USB3.0 Hub             
