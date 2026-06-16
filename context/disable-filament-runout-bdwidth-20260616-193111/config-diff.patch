@@ -1,0 +1,61 @@
+diff --git a/macros.cfg b/macros.cfg
+index 79a720c..d132dda 100644
+--- a/macros.cfg
++++ b/macros.cfg
+@@ -101,12 +101,11 @@ gcode:
+     # [INIT] 파이프라인 시작 알림
+     M118 >>> [JOB_START] Initializing Klipper Deployment Pipeline...
+     SET_GCODE_OFFSET Z=0
+-    {% if require_filament %}
+-        ASSERT_TOOLHEAD_FILAMENT
+-    {% else %}
+-        FILAMENT_STATUS
+-        M118 >>> [WARN] Filament sensors are monitor-only. Use REQUIRE_FILAMENT=1 after PB5/PB6 verification.
+-    {% endif %}
++    # Filament/runout checks disabled 2026-06-16.
++    # Previous REQUIRE_FILAMENT path called ASSERT_TOOLHEAD_FILAMENT.
++    # Previous monitor-only path called FILAMENT_STATUS.
++    # Both are disabled while filament sensors and BDWidth are commented out.
++    M118 >>> [WARN] Filament and runout sensors disabled.
+
+     # -----------------------------------------------------------------
+     # STAGE 1: THERMAL_SOAK (베드 가열 및 노즐 보온)
+@@ -150,8 +149,9 @@ gcode:
+     # -----------------------------------------------------------------
+     # STAGE 4: DEPLOY_PREP (BD Width)
+     # -----------------------------------------------------------------
+-    M118 >>> [STAGE: WIDTH] Enabling BDWidth filament diameter monitoring.
+-    SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE
++    # M118 >>> [STAGE: WIDTH] Enabling BDWidth filament diameter monitoring.
++    # SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE
++    M118 >>> [STAGE: WIDTH] BDWidth disabled; skipping width/runout monitoring.
+
+     # -----------------------------------------------------------------
+     # STAGE 5: PURGE (최종 확인 및 프라이밍)
+@@ -199,7 +199,7 @@ gcode:
+     M104 S100
+
+     TURN_OFF_HEATERS
+-    SET_BDWIDTH NAME=fila_width_0 COMMAND=DISABLE
++    # SET_BDWIDTH NAME=fila_width_0 COMMAND=DISABLE  ; disabled with BDWidth include
+
+     G90                                      ; 절대 좌표
+     G0 Z{z_safe} F3600                       ; Z 살짝 상승
+diff --git a/printer.cfg b/printer.cfg
+index 78bd8aa..e02e225 100644
+--- a/printer.cfg
++++ b/printer.cfg
+@@ -4,11 +4,11 @@
+ [include klippain-shaketune.cfg]
+ [include mainsail.cfg]
+ [include printer_toolhead_usb.cfg]
+-[include printer_bdwidth.cfg]
++# [include printer_bdwidth.cfg]  # disabled: BDWidth/runout disabled 2026-06-16
+ [include printer_eddy.cfg]
+ [include printer_mainboard.cfg]
+ [include printer_bme280_toolhead.cfg]
+-[include printer_filament_sensors.cfg]
++# [include printer_filament_sensors.cfg]  # disabled: filament/runout sensors disabled 2026-06-16
+ [include printer_filament_buffer.cfg]
+ [include printer_toolhead_rgb.cfg]
+ [include macros.cfg]
