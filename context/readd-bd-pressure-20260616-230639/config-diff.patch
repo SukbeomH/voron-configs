@@ -1,0 +1,25 @@
+diff --git a/printer.cfg b/printer.cfg
+index e02e225..b2c8a12 100644
+--- a/printer.cfg
++++ b/printer.cfg
+@@ -4,6 +4,7 @@
+ [include klippain-shaketune.cfg]
+ [include mainsail.cfg]
+ [include printer_toolhead_usb.cfg]
++[include printer_bd_pressure_usb.cfg]
+ # [include printer_bdwidth.cfg]  # disabled: BDWidth/runout disabled 2026-06-16
+ [include printer_eddy.cfg]
+ [include printer_mainboard.cfg]
+diff --git a/printer_bd_pressure_usb.cfg b/printer_bd_pressure_usb.cfg
+index 8e02488..eb62413 100644
+--- a/printer_bd_pressure_usb.cfg
++++ b/printer_bd_pressure_usb.cfg
+@@ -8,7 +8,7 @@ baud:38400
+ thrhold:5    # thrhold for the probe triger value,recommend value 3 to 10
+
+ # BD Pressure is PA-only in this architecture.
+-# Do not define [probe] here; Cartographer owns stock probe.
++# Do not define [probe] here; BTT Eddy owns the stock probe object.
+
+ [gcode_macro PA_RESET]
+ gcode:

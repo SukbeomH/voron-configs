@@ -1,0 +1,18 @@
+/dev/serial/by-id:
+total 0
+lrwxrwxrwx 1 root root 13 Jun 16 23:05 usb-1a86_USB_Serial-if00-port0 -> ../../ttyUSB0
+lrwxrwxrwx 1 root root 13 Jun 16 23:03 usb-Klipper_rp2040_50445059387D401C-if00 -> ../../ttyACM1
+lrwxrwxrwx 1 root root 13 Jun 16 23:02 usb-Klipper_stm32g0b1xx_500031000650505539323520-if00 -> ../../ttyACM0
+
+/dev/serial/by-path:
+total 0
+lrwxrwxrwx 1 root root 13 Jun 16 23:05 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.1:1.0-port0 -> ../../ttyUSB0
+lrwxrwxrwx 1 root root 13 Jun 16 19:40 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.3.1:1.0-port0 -> ../../ttyUSB1
+lrwxrwxrwx 1 root root 13 Jun 16 23:02 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.3.2:1.0 -> ../../ttyACM0
+lrwxrwxrwx 1 root root 13 Jun 16 23:03 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.3.4:1.0 -> ../../ttyACM1
+lrwxrwxrwx 1 root root 13 Jun 16 23:00 platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.2.4:1.0-port0 -> ../../ttyUSB2
+lrwxrwxrwx 1 root root 13 Jun 16 23:05 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.1:1.0-port0 -> ../../ttyUSB0
+lrwxrwxrwx 1 root root 13 Jun 16 19:40 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.3.1:1.0-port0 -> ../../ttyUSB1
+lrwxrwxrwx 1 root root 13 Jun 16 23:02 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.3.2:1.0 -> ../../ttyACM0
+lrwxrwxrwx 1 root root 13 Jun 16 23:03 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.3.4:1.0 -> ../../ttyACM1
+lrwxrwxrwx 1 root root 13 Jun 16 23:00 platform-fd500000.pcie-pci-0000:01:00.0-usbv2-0:1.2.4:1.0-port0 -> ../../ttyUSB2
