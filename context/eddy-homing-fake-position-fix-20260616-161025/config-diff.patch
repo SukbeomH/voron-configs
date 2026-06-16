@@ -1,0 +1,13 @@
+diff --git a/plr.cfg b/plr.cfg
+index 0717573..18ba06e 100644
+--- a/plr.cfg
++++ b/plr.cfg
+@@ -2,7 +2,7 @@
+ enable_force_move: True
+ 
+ [delayed_gcode KINEMATIC_POSITION]
+-initial_duration:0.2
++initial_duration: 0
+ gcode:
+       SET_KINEMATIC_POSITION X=0
+       SET_KINEMATIC_POSITION Y=0
