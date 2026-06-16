@@ -1,0 +1,2 @@
+-rw-r--r-- 1 sukbeom sukbeom 2694 Jun 16 04:31 /home/sukbeom/printer_data/config/printer-20260616_160149.cfg
+-rw-r--r-- 1 sukbeom sukbeom 5165 Jun 16 16:01 /home/sukbeom/printer_data/config/printer-20260616_160343.cfg
