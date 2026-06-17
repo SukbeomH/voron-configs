@@ -12,7 +12,6 @@ gcode:
 default_type: echo
 
 [gcode_macro G31]
-description: Clear saved power-loss recovery state
 gcode:
       RUN_SHELL_COMMAND CMD=clear_plr
 
@@ -20,7 +19,6 @@ gcode:
 command: sh /home/sukbeom/printer_data/plr/clear_plr.sh
 timeout: 5.
 [gcode_macro save_last_file]
-description: Save the currently loaded G-code file for power-loss recovery
 gcode:
 
   {% set svv = printer.save_variables.variables %}
@@ -36,7 +34,6 @@ gcode:
   M118 Last File: { filename[-1] }
 
 [gcode_macro clear_last_file]
-description: Clear the saved power-loss recovery file
 gcode:
   {% set filename='' %}
   {% set filepath='' %}
@@ -49,7 +46,6 @@ timeout: 420.
 
 
 [gcode_macro RESUME_INTERRUPTED]
-description: Generate and start a power-loss recovery print from saved state
 gcode =
     SET_KINEMATIC_POSITION X=0
     SET_KINEMATIC_POSITION Y=0
@@ -62,7 +58,6 @@ gcode =
     RUN_SHELL_COMMAND CMD=POWER_LOSS_RESUME PARAMS="{z_height} \"{last_file}\""
     SDCARD_PRINT_FILE FILENAME=plr/"{last_file}"
 [gcode_macro LOG_Z]
-description: Save the current Z height for power-loss recovery
 gcode:
     {% set z_pos = printer.gcode_move.gcode_position.z %}
     RESPOND MSG="Current Z is {z_pos}"

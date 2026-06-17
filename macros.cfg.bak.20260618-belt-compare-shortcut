@@ -3,7 +3,6 @@
 #####################################################################
 
 [gcode_macro SET_FAKE_Z]
-description: Set the current virtual Z position without moving
 gcode:
     {% set z_value = params.Z|default(printer.toolhead.position.z)|float %}
     SET_KINEMATIC_POSITION Z={z_value}
@@ -463,11 +462,6 @@ gcode:
     # Restore previous gcode state (absolute/relative, etc)
     RESTORE_GCODE_STATE NAME=TEST_SPEED
 
-[gcode_macro COMPARE_BELTS_QUICK]
-description: Shortcut for Shake&Tune belt comparison graph from 80Hz to 130Hz
-gcode:
-    COMPARE_BELTS_RESPONSES {rawparams} FREQ_START=80 FREQ_END=130
-
 [gcode_macro CHOPPER_TUNE_FIND_RESONANCE]
 description: Find chopper resonance speed before adaptive tuning
 gcode:
@@ -503,3 +497,10 @@ gcode:
     G1 X{max_x / 2} Y0 Z{max_z} F{speed}
     
     {action_respond_info("Moved to Maintenance Position")}
+
+[gcode_macro BELT_COMPARE_QUICK]
+description: A, B 벨트 텐션 빠르게 확인
+gcode:
+    G28
+    AXIS=1,1 FREQ_START=80 FREQ_END=130 OUTPUT=raw_data
+    AXIS=1,-1 FREQ_START=80 FREQ_END=130 OUTPUT=raw_data

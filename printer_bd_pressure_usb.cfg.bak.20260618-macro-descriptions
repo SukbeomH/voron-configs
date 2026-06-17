@@ -11,7 +11,6 @@ thrhold:5    # thrhold for the probe triger value,recommend value 3 to 10
 # Do not define [probe] here; BTT Eddy owns the stock probe object.
 
 [gcode_macro PA_RESET]
-description: Reset the BD Pressure probe state
 gcode:
      M400
      G4 P200
@@ -20,14 +19,12 @@ gcode:
 
 
 [gcode_macro PA_STATE]
-description: Report the current BD Pressure state
 gcode:
     {% set status = printer["bdpressure bd_pa"].state %}
     { action_respond_info("status:%s %d"%(status,params.T|default(0)|int)) }
 
 
 [gcode_macro PA_E]
-description: Print one pressure advance calibration segment and sample BD Pressure
 gcode:
       {% set status = printer["bdpressure bd_pa"].state %}
       {% set i = params.I|int %}
@@ -49,7 +46,6 @@ gcode:
 
 
 [gcode_macro PA_CALIBRATE]
-description: Run BD Pressure-assisted pressure advance calibration pattern
 gcode:
     # PA_CALIBRATE NOZZLE_TEMP=[first_layer_temperature] MAX_VOLUMETRIC=[filament_max_volumetric_speed] ACC_WALL=[outer_wall_acceleration]
     # TRAVEL_SPEED=[travel_speed]  ACC_TO_DECEL_FACTOR=[accel_to_decel_factor]

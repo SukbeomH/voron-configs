@@ -3,7 +3,6 @@
 #####################################################################
 
 [gcode_macro SET_FAKE_Z]
-description: Set the current virtual Z position without moving
 gcode:
     {% set z_value = params.Z|default(printer.toolhead.position.z)|float %}
     SET_KINEMATIC_POSITION Z={z_value}
@@ -463,28 +462,14 @@ gcode:
     # Restore previous gcode state (absolute/relative, etc)
     RESTORE_GCODE_STATE NAME=TEST_SPEED
 
-[gcode_macro COMPARE_BELTS_QUICK]
-description: Shortcut for Shake&Tune belt comparison graph from 80Hz to 130Hz
-gcode:
-    COMPARE_BELTS_RESPONSES {rawparams} FREQ_START=80 FREQ_END=130
-
-[gcode_macro CHOPPER_TUNE_FIND_RESONANCE]
-description: Find chopper resonance speed before adaptive tuning
-gcode:
-    {% set axis = params.AXIS|default("X") %}
-    {% set direction = params.DIRECTION|default(1) %}
-    CHOPPER_TUNE AXIS={axis} FIND_RESONANCES=1 DIRECTION={direction}
-
 [gcode_macro CHOPPER_TUNE_ADAPTIVE]
-description: Run adaptive chopper tuning at a known resonance speed
+description: Run adaptive chopper tuning, auto-detecting resonance speed if omitted
 gcode:
-    {% if "SPEED" in params %}
-        CHOPPER_TUNE {rawparams} MIN_SPEED={params.SPEED} MAX_SPEED={params.SPEED} SEARCH_METHOD=adaptive
-    {% elif "MIN_SPEED" in params and "MAX_SPEED" in params %}
-        CHOPPER_TUNE {rawparams} SEARCH_METHOD=adaptive
-    {% else %}
-        RESPOND TYPE=error MSG="Run CHOPPER_TUNE_FIND_RESONANCE first, then run CHOPPER_TUNE_ADAPTIVE SPEED=<resonance_speed>"
-    {% endif %}
+  {% if "MIN_SPEED" in params and "MAX_SPEED" in params %}
+    CHOPPER_TUNE {rawparams} SEARCH_METHOD=adaptive
+  {% else %}
+    CHOPPER_TUNE_AUTO {rawparams}
+  {% endif %}
 
 [gcode_macro MAINTENANCE]
 description: 정비 위치로 이동 (중앙 앞쪽, Z 높게)

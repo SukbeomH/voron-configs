@@ -3,7 +3,6 @@
 #####################################################################
 
 [gcode_macro SET_FAKE_Z]
-description: Set the current virtual Z position without moving
 gcode:
     {% set z_value = params.Z|default(printer.toolhead.position.z)|float %}
     SET_KINEMATIC_POSITION Z={z_value}

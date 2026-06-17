@@ -9,7 +9,6 @@ max_temp: 120
 gcode_id: THA
 
 [gcode_macro QUERY_TOOLHEAD_AIR]
-description: Report toolhead air temperature, humidity, and pressure
 gcode:
     {% set sensor = printer["bme280 toolhead_air"] %}
     { action_respond_info("toolhead_air: %.2f C, %.2f %%RH, %.2f hPa" % (sensor.temperature, sensor.humidity, sensor.pressure)) }
