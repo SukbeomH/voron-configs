@@ -1,15 +1,20 @@
 # Voron Config Context Index
 
-Last updated: 2026-06-12 Asia/Seoul
+Last updated: 2026-06-19 Asia/Seoul
 Host: `voronrpi4b` / `192.168.0.29`
 Config root: `/home/sukbeom/printer_data/config`
-Branch: `codex/bdpressure-option2-20260612-142732`
+Branch: `codex/bdpressure-z-endstop-eddy-scan`
 
 This is the agent-friendly entry point for this printer config. Read it before editing macros, probe ownership, BD Pressure, Cartographer, BD Width, filament sensors, Moonraker, or USB serial settings.
 
 ## 1. Current Runtime Status
 
-Last verified in this thread after USB hub replacement:
+Last verified live in this thread after USB hub replacement. On 2026-06-19 the
+host was intentionally powered down for maintenance, so the BD Pressure Z
+endstop change below is repository-only until the host pulls it and verifies
+endstop state.
+
+Previous live state:
 
 ```text
 Moonraker: active, `/server/info` reachable on `127.0.0.1:7125`
@@ -94,10 +99,13 @@ The active root file is `printer.cfg`.
 ```ini
 [include printer_toolhead_usb.cfg]
 [include printer_bd_pressure_usb.cfg]
-[include printer_cartographer.cfg]
+[include printer_eddy.cfg]
 [include printer_mainboard.cfg]
-[include printer_filament_sensors.cfg]
-[include printer_bdwidth.cfg]
+# [include printer_bdwidth.cfg]  # disabled: BDWidth/runout disabled 2026-06-16
+[include printer_bme280_toolhead.cfg]
+# [include printer_filament_sensors.cfg]  # disabled: filament/runout sensors disabled 2026-06-16
+[include printer_filament_buffer.cfg]
+[include printer_toolhead_rgb.cfg]
 [include macros.cfg]
 ```
 
@@ -106,32 +114,30 @@ Core files:
 ```text
 printer.cfg                    main MCU serial and include order
 printer_bd_pressure_usb.cfg     BD Pressure USB module, PA_CALIBRATE, PA_E, PA_RESET
-printer_cartographer.cfg        Cartographer MCU and scanner/touch config
-printer_mainboard.cfg           XY/Z steppers; Z endstop uses `probe:z_virtual_endstop`
-printer_bdwidth.cfg             BD Width USB module
-printer_filament_sensors.cfg    EBBusb PB6/PB5 filament switch sensors and status/assert macros
+printer_eddy.cfg                BTT Eddy MCU and scan/tap-capable probe config
+printer_mainboard.cfg           XY/Z steppers; Z endstop uses BD Pressure switch on `^EBBusb:PB8`
+printer_bdwidth.cfg             BD Width USB module, currently disabled
+printer_filament_sensors.cfg    EBBusb PB6/PB5 filament switch sensors, currently disabled
 macros.cfg                      PRINT_START, PRINT_END, deprecated SET_Z_FROM_PROBE, CLEAN_NOZZLE, CQGL
 ```
 
 ## 5. Probe Ownership Truth Table
 
 ```text
-Standard Klipper `[probe]`: Cartographer
-Cartographer scanner/touch object: `cartographer`
-Cartographer endstop chip: `probe`
-G28 Z / safe_z_home: Cartographer via `probe:z_virtual_endstop`
-BED_MESH_CALIBRATE ADAPTIVE=1: Cartographer scan mesh
-Final Z in PRINT_START: `CARTOGRAPHER_TOUCH_HOME`
-QUAD_GANTRY_LEVEL / CQGL: Cartographer-backed stock probe
-BD Pressure: PA_CALIBRATE / PA_E / PA_RESET only
+Standard Klipper `probe` object: BTT Eddy (`[probe_eddy_current btt_eddy]`)
+BTT Eddy object: `probe_eddy_current btt_eddy`
+G28 Z / safe_z_home: BD Pressure hardware switch on `^EBBusb:PB8`
+BED_MESH_CALIBRATE METHOD=scan ADAPTIVE=1: BTT Eddy scan mesh
+QUAD_GANTRY_LEVEL / CQGL: BTT Eddy-backed stock probe
+BD Pressure: Z hardware endstop plus PA_CALIBRATE / PA_E / PA_RESET
 SET_Z_FROM_PROBE: deprecated, not used by PRINT_START
 ```
 
-Do not restore a BD Pressure `[probe]` block unless intentionally returning to split-probe architecture. If BD Pressure owns stock `[probe]`, `PROBE` and QGL use BD Pressure again.
+Do not restore a BD Pressure `[probe]` block for this architecture. BD Pressure
+is used as a physical Z endstop pin so Eddy can remain the stock probe object
+for QGL and scan mesh.
 
-`register_as_probe: true` in `printer_cartographer.cfg` is intentional. It makes Cartographer own the stock `probe` object and the `probe:z_virtual_endstop` chip used by Z homing and QGL.
-
-The previous GitHub Cartographer-probe configuration used unsafe front QGL Y points. Keep front QGL points at `Y45` for the current Cartographer `y_offset: 43` setup.
+See `docs/bdpressure-z-endstop-eddy-scan.md` before motion testing after pull.
 
 ## 6. PRINT_START Flow
 
@@ -141,18 +147,13 @@ Current intended order:
 1. Reset runtime Z offset with `SET_GCODE_OFFSET Z=0`.
 2. Filament sensors are monitor-only by default; `REQUIRE_FILAMENT=1` makes them hard-abort.
 3. Start bed heat and hold nozzle at 150 C standby.
-4. `G28` using Cartographer Z virtual endstop.
+4. `G28` using BD Pressure physical Z endstop.
 5. Wait for bed target.
 6. Clean nozzle on rear brush at standby temperature.
-7. `CQGL`; this uses Cartographer because Cartographer owns stock `[probe]`.
-8. `CARTOGRAPHER_TOUCH_HOME` after QGL.
-9. `BED_MESH_CALIBRATE ADAPTIVE=1` using Cartographer mesh scan.
-10. `CLEAN_NOZZLE` immediately after mesh to remove residue before final touch.
-11. `CARTOGRAPHER_TOUCH_HOME` for final Z after post-mesh cleaning.
-12. Skip BD Pressure PA calibration by default; only `PRINT_START RUN_PA=1` parks at upstream-style `Z30`, `X240 Y240` and runs `PA_CALIBRATE`.
-13. If `RUN_PA=1`, clean nozzle again after PA air extrusion.
-14. `SET_BDWIDTH NAME=fila_width_0 COMMAND=ENABLE`.
-15. Confirm final nozzle temperature and run purge line.
+7. `CQGL`; this uses BTT Eddy because Eddy owns stock `probe`.
+8. `G28 Z` after QGL using the BD Pressure physical Z endstop.
+9. `BED_MESH_CALIBRATE METHOD=scan ADAPTIVE=1` using Eddy scan mesh.
+10. Confirm final nozzle temperature and run purge line.
 ```
 
 Do not run full `PRINT_START` or `PA_CALIBRATE` without user approval because both can heat and extrude.
