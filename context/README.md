@@ -118,8 +118,14 @@ printer_eddy.cfg                BTT Eddy MCU and scan/tap-capable probe config
 printer_mainboard.cfg           XY/Z steppers; Z endstop uses BD Pressure switch on `^EBBusb:PB8`
 printer_bdwidth.cfg             BD Width USB module, currently disabled
 printer_filament_sensors.cfg    EBBusb PB6/PB5 filament switch sensors, currently disabled
+printer_filament_buffer.cfg     BufferPLUS/LLL Plus MCU, buffer stepper, sensors, and fly_LLL_power
 macros.cfg                      PRINT_START, PRINT_END, deprecated SET_Z_FROM_PROBE, CLEAN_NOZZLE, CQGL
 ```
+
+BufferPLUS requires `~/klipper/klippy/extras/buffer.py`, currently symlinked
+from `~/lll-plus-klipper-plugin/klipper/buffer.py` on the host. The host plugin
+checkout includes the local defensive `_mcu_tmc` / `_steps_per_mm` init patch
+from the 2026-06-18 sandbox validation thread.
 
 ## 5. Probe Ownership Truth Table
 
