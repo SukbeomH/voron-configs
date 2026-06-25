@@ -4,13 +4,13 @@
 [include klippain-shaketune.cfg]
 [include mainsail.cfg]
 [include printer_toolhead_usb.cfg]
-# [include printer_bd_pressure_usb.cfg]  # disabled 2026-06-24: BD Pressure not working; Cartographer-only Z/probe
+# [include printer_bd_pressure_usb.cfg]
 # [include printer_bdwidth.cfg]  # disabled: BDWidth/runout disabled 2026-06-16
 [include printer_cartographer.cfg]
 [include printer_mainboard.cfg]
 [include printer_bme280_toolhead.cfg]
 # [include printer_filament_sensors.cfg]  # disabled: filament/runout sensors disabled 2026-06-16
-[include printer_filament_buffer.cfg]
+# [include printer_filament_buffer.cfg]
 [include printer_toolhead_rgb.cfg]
 [include macros.cfg]
 [include moonraker_obico_macros.cfg]
@@ -64,7 +64,7 @@ mesh_pps: 0,0
 move_check_distance: 3.0
 
 [safe_z_home]
-home_xy_position: 120, 120
+home_xy_position: 125, 120
 z_hop: 8                        # QGL/mesh 이동 중 베드 접촉 방지를 위해 여유 확보
 z_hop_speed: 25
 speed: 200
@@ -123,41 +123,30 @@ max_adjust: 10
 #*# [bed_mesh default]
 #*# version = 1
 #*# points =
-#*# 	0.163278, 0.203994, 0.172839, 0.189266, 0.166673
-#*# 	0.179754, 0.227781, 0.136041, 0.161002, 0.167916
-#*# 	0.140778, 0.158016, 0.183058, 0.166355, 0.153321
-#*# 	0.157566, 0.166666, 0.162346, 0.166113, 0.134976
-#*# 	0.175110, 0.172659, 0.170651, 0.170651, 0.109112
-#*# x_count = 5
-#*# y_count = 5
-#*# mesh_x_pps = 0
-#*# mesh_y_pps = 0
-#*# algo = direct
-#*# tension = 0.2
+#*# 	-0.073664, 0.001689, -0.004280, -0.018030, -0.019565, -0.025154, -0.026796, -0.027505, -0.016535
+#*# 	-0.060787, 0.005198, 0.000832, -0.015910, -0.018636, -0.024755, -0.023957, -0.022268, -0.011991
+#*# 	-0.066797, -0.000841, -0.002119, -0.018873, -0.026019, -0.036022, -0.030235, -0.025843, -0.008785
+#*# 	-0.065851, 0.004525, -0.001578, -0.024910, -0.010929, -0.029059, -0.032985, -0.023154, -0.002356
+#*# 	-0.049881, 0.015723, 0.012252, -0.003911, -0.000109, -0.009459, -0.020540, -0.014201, -0.001295
+#*# 	-0.044429, 0.019492, 0.013618, 0.000786, 0.006584, -0.015673, -0.016647, -0.014090, 0.000885
+#*# 	-0.035333, 0.021550, 0.014614, -0.000491, -0.004716, -0.014545, -0.017813, -0.017852, -0.004584
+#*# 	-0.029256, 0.021532, 0.012707, 0.001783, -0.002053, -0.015303, -0.018731, -0.013331, -0.002508
+#*# 	-0.021666, 0.028132, 0.020028, 0.008034, 0.003899, -0.012598, -0.012552, -0.010474, 0.001023
+#*# x_count = 9
+#*# y_count = 9
+#*# mesh_x_pps = 2
+#*# mesh_y_pps = 2
+#*# algo = bicubic
+#*# tension = 0.1
 #*# min_x = 15.0
 #*# max_x = 235.0
 #*# min_y = 25.0
-#*# max_y = 210.0
+#*# max_y = 209.96000000000004
 #*#
 #*# [cartographer scan_model default]
-#*# coefficients = 1.452770587783635,1.8963901408809216,0.7682810218058711,0.28270612219721847,0.5889763093217748,0.9404613442303318,-0.501033807518183,-1.034280004091689,0.48931722506876507,0.6155511261709581
-#*# domain = 3.190766648414659e-07,3.351965703181235e-07
+#*# coefficients = 1.459910954135158,1.9305624592954564,0.7929721977951081,0.30120899152663594,0.5446325907925791,0.7752008897162153,-0.4557079570758133,-0.8024332433086956,0.45838638748434357,0.49861791062212896
+#*# domain = 3.2234442537788043e-07,3.353555651201721e-07
 #*# z_offset = 0
-#*# reference_temperature = 52.69
+#*# reference_temperature = 28.11
 #*# software_version = 1.8.0
 #*# mcu_version = CARTOGRAPHER V3 6.1.0
-#*#
-#*# [cartographer touch_model default]
-#*# threshold = 2361
-#*# speed = 2.0
-#*# z_offset = -0.21
-#*# software_version = 1.8.0
-#*# mcu_version = CARTOGRAPHER V3 6.1.0
-#*#
-#*# [cartographer]
-#*# z_backlash = 0.01728
-#*#
-#*# [axis_twist_compensation]
-#*# z_compensations = 0.042244, -0.000137, -0.036307, -0.015188, 0.009387
-#*# compensation_start_x = 15.0
-#*# compensation_end_x = 235.0

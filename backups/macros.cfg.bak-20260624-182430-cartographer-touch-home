@@ -47,7 +47,7 @@ description: 후방 노즐 브러쉬에서 노즐 청소
 variable_brush_x_min: 32.0
 variable_brush_x_max: 71.0
 variable_brush_y: 252.5
-variable_brush_z: 5.0
+variable_brush_z: 5.9
 variable_travel_z: 20.0
 variable_wipe_count: 6
 variable_wipe_speed: 6000
@@ -137,7 +137,7 @@ gcode:
     CQGL                           # 조건부 QGL 실행 (이미 되어 있으면 스킵)
 
     CLEAN_NOZZLE Z={brush_z} WIPES={brush_wipes}
-    CARTOGRAPHER_TOUCH_HOME         # Cartographer touch로 QGL 이후 Z 재홈
+    G28 Z                          # Cartographer virtual endstop으로 QGL 이후 Z 재홈
     
     G90
     G0 X120 Y125 Z10 F6000         # 베드 중앙으로 이동
@@ -233,7 +233,7 @@ gcode:
         CG28
         
         QUAD_GANTRY_LEVEL
-        CARTOGRAPHER_TOUCH_HOME
+        G28 Z
     {% endif %}
     
     # 동적 중앙값 계산
@@ -392,7 +392,7 @@ gcode:
         {% if printer.configfile.settings.quad_gantry_level %}
             {% if printer.quad_gantry_level.applied == False %}
                 QUAD_GANTRY_LEVEL
-                CARTOGRAPHER_TOUCH_HOME
+                G28 Z
             {% endif %}
         {% endif %} 
         # Move 50mm away from max position and home again (to help with hall effect endstop accuracy - https://github.com/AndrewEllis93/Print-Tuning-Guide/issues/24)
