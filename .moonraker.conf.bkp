@@ -140,3 +140,10 @@ install_script = install.sh
 managed_services = 
 	moonraker-obico
 
+[mcu_flasher lll_plus]
+kconfig = 
+	/home/sukbeom/klipper-kconfigs/lll_plus_f072_usb_katapult.config
+flash_cmd = 
+	/home/sukbeom/bin/flash_lll_plus_usb_katapult.sh /home/sukbeom/klipper/out/klipper.bin
+silent = False
+
