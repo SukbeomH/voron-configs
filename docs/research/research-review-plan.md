@@ -1,5 +1,7 @@
 # Research Review Plan
 
+분류: research template
+
 ## 2.1 API 계약 레지스트리 (대상 API A)
 
 | method명 | gateway URL | 필수 파라미터 | 선택 파라미터 | 응답 핵심 필드 | 마지막 확인일(YYYY-MM-DD) | 확인 환경(샌드박스/프로덕션) | 참고 문서 URL |

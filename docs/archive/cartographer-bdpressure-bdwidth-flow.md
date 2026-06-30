@@ -2,12 +2,13 @@
 
 작성일: 2026-06-12
 대상 호스트: `voronrpi4b` / `192.168.0.29`
+분류: archive
 
 > Historical note, 2026-06-19: this document describes the older
 > Cartographer-owned probe architecture. The active repository now uses
 > BD Pressure as the physical Z endstop on `^EBBusb:PB8` and keeps BTT Eddy
 > as the stock probe for QGL and `BED_MESH_CALIBRATE METHOD=scan`.
-> See `docs/bdpressure-z-endstop-eddy-scan.md` for the current pull-and-test
+> See `../operations/bdpressure-z-endstop-eddy-scan.md` for the current pull-and-test
 > procedure.
 
 ## 1. 역할 분리
