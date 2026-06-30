@@ -1,2 +1,6 @@
 .theme
 *.zip
+
+# Live-only credentials / site-local config
+moonraker-obico.cfg
+.moonraker.conf.bkp
