@@ -4,3 +4,13 @@
 # Live-only credentials / site-local config
 moonraker-obico.cfg
 .moonraker.conf.bkp
+variables.cfg
+
+# Generated calibration and analysis output
+ShakeTune_results/
+chopper_magnitude/
+
+# Local backups and UI exports
+backups/
+printer-*.cfg
+backup-mainsail_*.json

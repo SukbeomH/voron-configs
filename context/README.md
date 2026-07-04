@@ -1,17 +1,11 @@
 # Voron Config Context Index
 
-Last updated: 2026-06-30 Asia/Seoul
+Last updated: 2026-06-19 Asia/Seoul
 Host: `voronrpi4b` / `192.168.0.29`
 Config root: `/home/sukbeom/printer_data/config`
-Branch: see current `git status`; local files were synced from live config on 2026-06-30
+Branch: `codex/bdpressure-z-endstop-eddy-scan`
 
 This is the agent-friendly entry point for this printer config. Read it before editing macros, probe ownership, BD Pressure, Cartographer, BD Width, filament sensors, Moonraker, or USB serial settings.
-
-Canonical human-readable docs are indexed in `docs/README.md`.
-Use `docs/operations/` for current operating procedures, `docs/research/`
-for investigation records, and `docs/archive/` for replaced historical flows.
-Keep task evidence, downloaded live snapshots, logs, and one-off worklogs under
-`context/`.
 
 ## 1. Current Runtime Status
 
@@ -95,7 +89,7 @@ scripts/show_usb_serial_info.sh*
 Use scoped status before staging:
 
 ```bash
-ssh sukbeom@192.168.0.29 'cd ~/printer_data/config && git status --short -- printer.cfg macros.cfg printer_bd_pressure_usb.cfg printer_bdwidth.cfg printer_filament_sensors.cfg printer_cartographer.cfg printer_mainboard.cfg docs/README.md docs/operations/buffer-bdwidth-motion-monitor.md docs/operations/bdpressure-z-endstop-eddy-scan.md context/README.md'
+ssh sukbeom@192.168.0.29 'cd ~/printer_data/config && git status --short -- printer.cfg macros.cfg printer_bd_pressure_usb.cfg printer_bdwidth.cfg printer_filament_sensors.cfg printer_cartographer.cfg printer_mainboard.cfg docs/cartographer-bdpressure-bdwidth-flow.md context/README.md'
 ```
 
 ## 4. Active Include Graph
@@ -103,39 +97,28 @@ ssh sukbeom@192.168.0.29 'cd ~/printer_data/config && git status --short -- prin
 The active root file is `printer.cfg`.
 
 ```ini
-[include plr.cfg]
-[include mcu_flasher.cfg]
-[include chopper_tune.cfg]
-[include klippain-shaketune.cfg]
-[include mainsail.cfg]
 [include printer_toolhead_usb.cfg]
-# [include printer_bd_pressure_usb.cfg]  # disabled 2026-06-24: BD Pressure not working; Cartographer-only Z/probe
-[include printer_bdwidth.cfg]
-[include printer_cartographer.cfg]
+[include printer_bd_pressure_usb.cfg]
+[include printer_eddy.cfg]
 [include printer_mainboard.cfg]
+# [include printer_bdwidth.cfg]  # disabled: BDWidth/runout disabled 2026-06-16
 [include printer_bme280_toolhead.cfg]
 # [include printer_filament_sensors.cfg]  # disabled: filament/runout sensors disabled 2026-06-16
 [include printer_filament_buffer.cfg]
-[include lll_plus.cfg]
 [include printer_toolhead_rgb.cfg]
 [include macros.cfg]
-[include moonraker_obico_macros.cfg]
 ```
 
 Core files:
 
 ```text
 printer.cfg                    main MCU serial and include order
-plr.cfg                        power-loss recovery macros and shell hooks
-mainsail.cfg                   Mainsail/client macros
-klippain-shaketune.cfg         Shake&Tune macros
-printer_bd_pressure_usb.cfg     BD Pressure USB module, currently not included
-printer_cartographer.cfg        Cartographer probe and touch config
-printer_mainboard.cfg           XY/Z steppers; Z endstop uses `probe:z_virtual_endstop`
-printer_bdwidth.cfg             BD Width USB module, currently included
+printer_bd_pressure_usb.cfg     BD Pressure USB module, PA_CALIBRATE, PA_E, PA_RESET
+printer_eddy.cfg                BTT Eddy MCU and scan/tap-capable probe config
+printer_mainboard.cfg           XY/Z steppers; Z endstop uses BD Pressure switch on `^EBBusb:PB8`
+printer_bdwidth.cfg             BD Width USB module, currently disabled
 printer_filament_sensors.cfg    EBBusb PB6/PB5 filament switch sensors, currently disabled
 printer_filament_buffer.cfg     BufferPLUS/LLL Plus MCU, buffer stepper, sensors, and fly_LLL_power
-lll_plus.cfg                    Active LLL Plus buffer MCU, buffer stepper, sensors, and sync config
 macros.cfg                      PRINT_START, PRINT_END, deprecated SET_Z_FROM_PROBE, CLEAN_NOZZLE, CQGL
 ```
 
@@ -160,7 +143,7 @@ Do not restore a BD Pressure `[probe]` block for this architecture. BD Pressure
 is used as a physical Z endstop pin so Eddy can remain the stock probe object
 for QGL and scan mesh.
 
-See `docs/operations/bdpressure-z-endstop-eddy-scan.md` before motion testing after pull.
+See `docs/bdpressure-z-endstop-eddy-scan.md` before motion testing after pull.
 
 ## 6. PRINT_START Flow
 
