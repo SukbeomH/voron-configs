@@ -5,6 +5,8 @@
 moonraker-obico.cfg
 .moonraker.conf.bkp
 variables.cfg
+mobileraker.conf
+update_plr.cfg
 
 # Generated calibration and analysis output
 ShakeTune_results/
