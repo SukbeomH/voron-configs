@@ -4,29 +4,28 @@ set -e
 # 설정 폴더로 이동
 cd ~/printer_data/config
 
-# 공개 repo에 올릴 설정 파일만 명시적으로 추가
-tracked_files=(
-  .gitignore
-  autocommit.sh
-  lll_plus.cfg
-  macros.cfg
-  mainsail.cfg
-  moonraker.conf
-  moonraker-obico-update.cfg
-  moonraker-obico.example.cfg
-  moonraker_obico_macros.cfg
-  printer.cfg
-  printer_bd_pressure_usb.cfg
-  printer_bdwidth.cfg
-  printer_bme280_toolhead.cfg
-  printer_cartographer.cfg
-  printer_homing.cfg
-  printer_mainboard.cfg
-  printer_toolhead_usb.cfg
+# 공개 repo에 올릴 설정 파일만 명시적으로 추가.
+# Klipper macro가 `sh autocommit.sh`로 실행하므로 POSIX sh 문법만 사용한다.
+for file in \
+  .gitignore \
+  autocommit.sh \
+  lll_plus.cfg \
+  macros.cfg \
+  mainsail.cfg \
+  moonraker.conf \
+  moonraker-obico-update.cfg \
+  moonraker-obico.example.cfg \
+  moonraker_obico_macros.cfg \
+  printer.cfg \
+  printer_bd_pressure_usb.cfg \
+  printer_bdwidth.cfg \
+  printer_bme280_toolhead.cfg \
+  printer_cartographer.cfg \
+  printer_homing.cfg \
+  printer_mainboard.cfg \
+  printer_toolhead_usb.cfg \
   update_plr.cfg
-)
-
-for file in "${tracked_files[@]}"; do
+do
   if [ -e "$file" ]; then
     git add "$file"
   fi
