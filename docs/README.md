@@ -14,6 +14,8 @@
    - 향후 `scripts/monitor_buffer_bdwidth.py` 구현 기준 문서.
 2. [BD Pressure Z Endstop + BTT Eddy Scan](operations/bdpressure-z-endstop-eddy-scan.md)
    - BD Pressure 물리 switch를 Z endstop으로 쓰고 Eddy scan mesh를 유지하는 절차.
+3. [Eddy Tap Z 기준점 변동 및 direct mesh 중복 보정 사고 기록](operations/eddy-tap-zero-reference-direct-mesh-incident-2026-07-14.md)
+   - `mesh_pps: 0,0` direct 경로에서 `zero_reference_position`이 두 번 적용된 첫 레이어 Z 오류의 원인, 설정 우회, 검증 및 재발 방지 절차.
 
 ## Research
 
