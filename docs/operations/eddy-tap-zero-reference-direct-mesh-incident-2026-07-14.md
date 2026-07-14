@@ -135,14 +135,14 @@ Klipper 소스는 직접 패치하지 않았다. 소스 패치는 업데이트 �
 - 첫 패치: 일부 라인 간격 확인
 - 이후 다섯 패치: 연속된 면으로 출력
 - 최종 라이브 조정: `-0.07mm`
-- `Z_OFFSET_APPLY_PROBE METHOD=tap` 적용 후 최종 `tap_z_offset`: `-0.670mm`
+- 1차 검증에서 `Z_OFFSET_APPLY_PROBE METHOD=tap` 적용 후 `tap_z_offset`: `-0.670mm`
 
 ## 현재 canonical 값
 
 ```ini
 [probe_eddy_current btt_eddy]
 tap_threshold: 1328.851
-tap_z_offset: -0.670
+tap_z_offset: -0.540
 ```
 
 ```ini
@@ -255,6 +255,44 @@ direct 모드에서 두 행렬이 더 이상 같은 객체가 아니거나, 중�
 
 롤백은 전체 파일을 무조건 덮어쓰기보다 현재 설정과 diff를 확인하고 `[bed_mesh]` 및 자동 저장 블록의 `tap_z_offset`만 선별 복원한다.
 
+## 후속 첫 레이어 확정 및 브러시 좌표 수정
+
+2026-07-14 후속 출력에서 다음 adaptive mesh를 확인했다.
+
+- 영역: `X34.4683~204.4383`, `Y49.9767~219.8067`
+- 실측/보간 크기: `24x28` / `47x55`
+- 메시 범위: `-0.162982~+0.035010mm`
+- 전체 편차: `0.197992mm`
+- `(125,100)` 보간값: `-0.000000142mm`
+
+첫 레이어에서 런타임 Z 오프셋 `-0.130mm`를 정상값으로 확정했다. 출력 취소 후 다음 순서로 영구 반영했다.
+
+```gcode
+Z_OFFSET_APPLY_PROBE METHOD=tap
+SAVE_CONFIG
+```
+
+저장 대기 항목은 `tap_z_offset: -0.540` 하나뿐이었으며, 재시작 후 해당 값과 런타임 Z 오프셋 `0.000mm`를 확인했다.
+
+같은 출력에서 노즐 와이핑 경로가 실제 후방 브러시보다 뒤쪽으로 이동하는 회귀도 확인했다. 작업본이 커밋된 좌표보다 Y 방향으로 `+1.0mm` 이동해 있었으므로 다음처럼 복원했다.
+
+```ini
+variable_brush_y: 251.5
+variable_brush_y_min: 251.0
+variable_brush_y_max: 252.0
+variable_safe_y_min: 251.0
+variable_safe_y_max: 253.0
+```
+
+재시작 후 활성 매크로 값이 `Y251~252`인지 확인하고 `CLEAN_NOZZLE`을 실행했다. 청소는 브러시 위 `Y251~252`, `Z-0.5`에서 수행됐으며 `X149 Y252 Z20`으로 상승해 정상 완료됐다.
+
+후속 변경 전 백업:
+
+```text
+/home/sukbeom/printer_data/config/backups/codex-nozzle-brush-y-fix-20260714-210420/macros.cfg
+/home/sukbeom/printer_data/config/backups/codex-confirm-tap-offset-20260714-211338/printer.cfg
+```
+
 ## 최종 상태
 
 2026-07-14 최종 확인:
@@ -266,6 +304,6 @@ direct 모드에서 두 행렬이 더 이상 같은 객체가 아니거나, 중�
 - 활성 메시: 없음
 - 히터 목표: 0
 - `tap_threshold`: `1328.851`
-- `tap_z_offset`: `-0.670mm`
+- `tap_z_offset`: `-0.540mm`
 - `mesh_pps`: `1,1`
 - `algorithm`: `bicubic`
